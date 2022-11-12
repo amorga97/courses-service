@@ -1,16 +1,13 @@
-import {
-  ConflictException,
-  Inject,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { QuestionRepository } from '../../../questions/domain/ports/question.repository';
 import { CreateSubjectDto } from '../../adapters/dto/create-subject.dto';
 import { UpdateSubjectDto } from '../../adapters/dto/update-subject.dto';
+import { iSubject } from '../entities/subject.model';
 import { SubjectRepository } from './subject.repository';
 
 @Injectable()
 export class SubjectService {
+  logger = new Logger('Subject Service');
   constructor(
     @Inject(SubjectRepository) private readonly Subject: SubjectRepository,
     @Inject(QuestionRepository) private readonly Question: QuestionRepository,
@@ -18,21 +15,28 @@ export class SubjectService {
 
   async create(createSubjectDto: CreateSubjectDto) {
     try {
-      const registeredSubject = await this.Subject.create(createSubjectDto);
+      const subjectForDb = {
+        ...createSubjectDto,
+        _id: createSubjectDto.id,
+      };
+      delete subjectForDb.id;
+      const registeredSubject = await this.Subject.create(
+        subjectForDb as unknown as iSubject,
+      );
       return registeredSubject;
     } catch (err) {
-      if (err.code === 11000)
-        throw new ConflictException(
-          'A Subject is already registered with the information you provided',
-        );
+      this.logger.error(err);
     }
   }
 
   async findOne(id: string, withQuestions: boolean) {
     const subject = await this.Subject.findById(id);
-    if (subject === null) throw new NotFoundException();
+    if (subject === null) {
+      this.logger.error('Subject not found');
+      return;
+    }
     if (withQuestions) {
-      const questions = await this.Question.find({ subject: subject._id });
+      const questions = await this.Question.find({ subject: subject.id });
       return { ...subject, questions };
     }
     return subject;
@@ -42,13 +46,19 @@ export class SubjectService {
     const updatedSubject = await this.Subject.findByIdAndUpdate(id, {
       ...updateSubjectDto,
     });
-    if (updatedSubject === null)
-      throw new NotFoundException('Subject not found');
+    if (updatedSubject === null) {
+      this.logger.error('Subject not found');
+      return;
+    }
     return updatedSubject;
   }
 
   async remove(id: string) {
     const removedSubject = await this.Subject.findByIdAndDelete(id);
+    if (removedSubject === null) {
+      this.logger.error('Subject not found');
+      return;
+    }
     return removedSubject;
   }
 }

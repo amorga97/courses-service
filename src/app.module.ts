@@ -4,10 +4,15 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { SubjectModule } from './subject/subject.module';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 
 @Module({
   imports: [
     ConfigModule.forRoot(),
+    EventEmitterModule.forRoot({
+      delimiter: '.',
+    }),
     ClientsModule.register([
       {
         name: 'COURSES',
@@ -18,7 +23,7 @@ import { AppService } from './app.service';
             brokers: ['localhost:29092'],
           },
           consumer: {
-            groupId: 'users-consumer',
+            groupId: 'courses-consumer',
           },
         },
       },
@@ -32,6 +37,7 @@ import { AppService } from './app.service';
           : process.env.DBNAME
       }?retryWrites=true&w=majority`,
     ),
+    SubjectModule,
   ],
   controllers: [AppController],
   providers: [AppService],

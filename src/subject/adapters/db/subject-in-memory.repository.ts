@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { iSubject } from '../../domain/entities/subject.model';
@@ -14,10 +14,14 @@ export class SubjectInMemoryRepository implements SubjectRepository {
     return (await this.Subject.create(SubjectData)).toObject();
   }
   async findById(id: string) {
-    return await this.Subject.findById(id);
+    const subject = await this.Subject.findById(id);
+    if (subject === null) return null;
+    return subject.toObject();
   }
   async findOne(search: any) {
-    return await this.Subject.findOne(search);
+    const subject = await this.Subject.findOne(search);
+    if (subject === null) return null;
+    return subject;
   }
   async findByIdAndUpdate(id: string, updatedSubjectData: Partial<iSubject>) {
     const subject = await this.Subject.findByIdAndUpdate(
@@ -27,12 +31,12 @@ export class SubjectInMemoryRepository implements SubjectRepository {
         new: true,
       },
     );
-    if (subject === null) throw new NotFoundException();
+    if (subject === null) return null;
     return subject.toObject();
   }
   async findByIdAndDelete(id: string) {
     const subject = await this.Subject.findById(id);
-    if (subject === null) throw new NotFoundException();
+    if (subject === null) return null;
     return (await subject.delete()).toObject();
   }
 

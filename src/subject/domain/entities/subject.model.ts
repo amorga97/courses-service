@@ -3,7 +3,7 @@ import { iQuestion } from 'src/questions/domain/entities/question.model';
 
 export const subjectSchema = new Schema(
   {
-    id: {
+    _id: {
       type: String,
       required: true,
       unique: true,
@@ -41,11 +41,13 @@ export const subjectSchema = new Schema(
   .set('toJSON', {
     transform: (_, ret) => {
       delete ret.__v;
+      delete ret._id;
     },
   })
   .set('toObject', {
     transform: (_, ret) => {
       delete ret.__v;
+      delete ret._id;
       return ret;
     },
     virtuals: true,
@@ -53,6 +55,7 @@ export const subjectSchema = new Schema(
 
 export interface iSubject {
   _id?: Types.ObjectId;
+  id: string;
   title: string;
   author: string;
   description?: string;
@@ -63,6 +66,7 @@ export interface iSubject {
 
 export class Subject implements iSubject {
   _id?: Types.ObjectId;
+  id: string;
   title: string;
   author: string;
   description?: string;
