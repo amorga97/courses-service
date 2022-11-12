@@ -1,11 +1,15 @@
 import {
   IsOptional,
   IsString,
+  Length,
   MaxLength,
   ValidateNested,
 } from 'class-validator';
 
 export class CreateSubjectDto {
+  @IsString()
+  @Length(24)
+  id: string;
   @IsString()
   @MaxLength(200)
   title: string;

@@ -4,11 +4,10 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { subjectSchema } from './domain/entities/subject.model';
 import { SubjectRepository } from './domain/ports/subject.repository';
 import { SubjectInMemoryRepository } from './adapters/db/subject-in-memory.repository';
-import { SubjectController } from './adapters/api/subject.controller';
+import { SubjectController } from './adapters/events/subject.controller';
 import { QuestionRepository } from 'src/questions/domain/ports/question.repository';
 import { QuestionInMemoryRepository } from 'src/questions/adapters/db/question-in-memory.repository';
 import { questionSchema } from 'src/questions/domain/entities/question.model';
-import { EventService } from 'src/events/event-service.service';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 
 @Module({
@@ -36,7 +35,6 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
     SubjectService,
     { provide: SubjectRepository, useClass: SubjectInMemoryRepository },
     { provide: QuestionRepository, useClass: QuestionInMemoryRepository },
-    EventService,
   ],
 })
 export class SubjectModule {}
