@@ -23,22 +23,22 @@ export class SubjectController {
 
   @OnEvent(SubjectEventActions.CREATE)
   async handleSubjectCreatedEvent(createSubjectDto: CreateSubjectDto) {
-    const { title } = await this.subjectService.create(createSubjectDto);
-    this.logger.log(`Created subject ${title}`);
+    const { id } = await this.subjectService.create(createSubjectDto);
+    this.logger.log(`Created subject ${id}`);
   }
 
   @OnEvent(SubjectEventActions.UPDATE)
   async handleSubjectUpdatedEvent(updateSubjectDto: UpdateSubjectDto) {
-    const { title } = await this.subjectService.update(
+    const { id } = await this.subjectService.update(
       updateSubjectDto.id,
       updateSubjectDto,
     );
-    this.logger.log(`Updated subject ${title}`);
+    this.logger.log(`Updated subject ${id}`);
   }
 
   @OnEvent(SubjectEventActions.REMOVE)
   async handleSubjectRemovedEvent({ id }: { id: string }) {
-    const { title } = await this.subjectService.remove(id);
-    this.logger.log(`Removed subject ${title}`);
+    const { id: removedId } = await this.subjectService.remove(id);
+    this.logger.log(`Removed subject ${removedId}`);
   }
 }

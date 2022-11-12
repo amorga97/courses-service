@@ -6,6 +6,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { SubjectModule } from './subject/subject.module';
 import { EventEmitterModule } from '@nestjs/event-emitter';
+import { QuestionModule } from './questions/question.module';
 
 @Module({
   imports: [
@@ -38,6 +39,7 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
       }?retryWrites=true&w=majority`,
     ),
     SubjectModule,
+    QuestionModule,
   ],
   controllers: [AppController],
   providers: [AppService],

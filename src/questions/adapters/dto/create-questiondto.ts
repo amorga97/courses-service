@@ -14,6 +14,9 @@ import { iOption } from 'src/questions/domain/entities/question.model';
 export class CreateQuestionDto {
   @IsNotEmpty()
   @IsString()
+  id: string;
+  @IsNotEmpty()
+  @IsString()
   title: string;
   @IsArray()
   @ArrayMinSize(3)

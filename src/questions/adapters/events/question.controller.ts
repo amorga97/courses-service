@@ -1,46 +1,46 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Patch,
-  Param,
-  Delete,
-  Query,
-} from '@nestjs/common';
-import { QuestionService } from '../../domain/ports/question.service';
+import { Controller, Logger } from '@nestjs/common';
+import { EventPattern } from '@nestjs/microservices';
+import { QuestionEventActions } from 'src/questions/domain/entities/question-actions.enum';
+import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { CreateQuestionDto } from '../dto/create-questiondto';
 import { UpdateQuestionDto } from '../dto/update-question.dto';
+import { EventInfo } from 'src/events/events.model';
+import { Question } from 'src/questions/domain/entities/question.model';
+import { QuestionService } from 'src/questions/domain/ports/question.service';
 
 @Controller('question')
 export class QuestionController {
-  constructor(private readonly questionService: QuestionService) {}
+  logger = new Logger('Question controller');
+  constructor(
+    private readonly questionService: QuestionService,
+    private eventEmitter: EventEmitter2,
+  ) {}
 
-  @Post()
-  create(@Body() createQuestionDto: CreateQuestionDto) {
-    return this.questionService.create(createQuestionDto);
+  @EventPattern('question')
+  handleEvent({ action, data }: EventInfo<Question>) {
+    this.eventEmitter.emit(action, data);
   }
 
-  @Get()
-  findAll(@Query('subjectId') subjectId: string) {
-    return this.questionService.findAllBySubject(subjectId);
+  @OnEvent(QuestionEventActions.CREATE)
+  async handleQuestionCreatedEvent(createQuestionDto: CreateQuestionDto) {
+    const questionForDb = { ...createQuestionDto, _id: createQuestionDto.id };
+    delete questionForDb.id;
+    const { question } = await this.questionService.create(questionForDb);
+    this.logger.log(`Created Question ${question.id}`);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.questionService.findOne(id);
+  @OnEvent(QuestionEventActions.UPDATE)
+  async handleQuestionUpdatedEvent(updateQuestionDto: UpdateQuestionDto) {
+    const { question } = await this.questionService.update(
+      updateQuestionDto.id,
+      updateQuestionDto,
+    );
+    this.logger.log(`Updated Question ${question.id}`);
   }
 
-  @Patch(':id')
-  update(
-    @Param('id') id: string,
-    @Body() updateQuestionDto: UpdateQuestionDto,
-  ) {
-    return this.questionService.update(id, updateQuestionDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.questionService.remove(id);
+  @OnEvent(QuestionEventActions.REMOVE)
+  async handleQuestionRemovedEvent({ id }: { id: string }) {
+    const { id: removedQuestionId } = await this.questionService.remove(id);
+    this.logger.log(`Removed Question ${removedQuestionId}`);
   }
 }

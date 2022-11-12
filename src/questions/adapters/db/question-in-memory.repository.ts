@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { FilterQuery, Model } from 'mongoose';
 import { iQuestion } from '../../domain/entities/question.model';
@@ -32,12 +32,12 @@ export class QuestionInMemoryRepository implements QuestionRepository {
         new: true,
       },
     );
-    if (question === null) throw new NotFoundException();
+    if (question === null) return null;
     return question.toObject();
   }
   async findByIdAndDelete(id: string) {
     const deletedQuestion = await this.Question.findById(id);
-    if (deletedQuestion === null) throw new NotFoundException();
+    if (deletedQuestion === null) return null;
     return (await deletedQuestion.delete()).toObject();
   }
 

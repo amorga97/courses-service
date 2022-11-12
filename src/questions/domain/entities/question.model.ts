@@ -2,7 +2,7 @@ import { Schema, SchemaTypes, Types } from 'mongoose';
 
 export const questionSchema = new Schema(
   {
-    id: {
+    _id: {
       type: String,
       required: true,
       unique: true,
@@ -46,6 +46,7 @@ export interface iOption {
 
 export interface iQuestion {
   _id?: Types.ObjectId;
+  id: string;
   subject: string;
   title: string;
   options: iOption[];
@@ -53,6 +54,7 @@ export interface iQuestion {
 
 export class Question implements iQuestion {
   _id?: Types.ObjectId;
+  id: string;
   subject: string;
   title: string;
   options: iOption[];

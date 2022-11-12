@@ -1,10 +1,4 @@
-import {
-  Inject,
-  Injectable,
-  Logger,
-  NotAcceptableException,
-  NotFoundException,
-} from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { SubjectRepository } from '../../../subject/domain/ports/subject.repository';
 import { CreateQuestionDto } from '../../adapters/dto/create-questiondto';
 import { UpdateQuestionDto } from '../../adapters/dto/update-question.dto';
@@ -34,10 +28,10 @@ export class QuestionService {
     } catch (err) {
       if (err.name === 'ValidationError') {
         this.logger.error(err);
-        throw new NotAcceptableException();
+        this.logger.error('Invalid params');
       }
       this.logger.error(err.message);
-      throw new NotFoundException(err.message);
+      this.logger.error(err);
     }
   }
 
@@ -45,12 +39,12 @@ export class QuestionService {
     if (await this.Subject.exists(subjectId)) {
       return this.Question.find({ subject: subjectId });
     }
-    throw new NotFoundException();
+    this.logger.error('Subject not found');
   }
 
   async findOne(id: string) {
     const question = await this.Question.findById(id);
-    if (question === null) throw new NotFoundException();
+    if (question === null) this.logger.error('Question not found');
     return question;
   }
 
@@ -59,13 +53,13 @@ export class QuestionService {
       id,
       updateQuestionDto,
     );
-    if (updatedQuestion === null) throw new NotFoundException();
+    if (updatedQuestion === null) this.logger.error('Question not found');
     return { question: updatedQuestion };
   }
 
   async remove(id: string) {
     const deletedQuestion = await this.Question.findByIdAndDelete(id);
-    if (deletedQuestion === null) throw new NotFoundException();
+    if (deletedQuestion === null) this.logger.error('Question not found');
     return deletedQuestion;
   }
 }
