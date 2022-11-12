@@ -1,34 +1,43 @@
 import { Schema, Types } from 'mongoose';
 import { iQuestion } from 'src/questions/domain/entities/question.model';
 
-export const subjectSchema = new Schema({
-  title: {
-    type: String,
-    required: true,
-    minlength: 3,
-    maxlength: 100,
+export const subjectSchema = new Schema(
+  {
+    id: {
+      type: String,
+      required: true,
+      unique: true,
+      length: 24,
+    },
+    title: {
+      type: String,
+      required: true,
+      minlength: 3,
+      maxlength: 100,
+    },
+    description: {
+      type: String,
+      required: false,
+      minlength: 250,
+      maxlength: 2000,
+    },
+    institution: {
+      type: String,
+      required: false,
+      minlength: 3,
+      maxlength: 100,
+    },
+    author: {
+      type: String,
+      required: true,
+    },
+    meta_data: {
+      type: [[String, String]],
+      required: false,
+    },
   },
-  description: {
-    type: String,
-    required: false,
-    minlength: 250,
-    maxlength: 2000,
-  },
-  institution: {
-    type: String,
-    required: false,
-    minlength: 3,
-    maxlength: 100,
-  },
-  author: {
-    type: String,
-    required: true,
-  },
-  meta_data: {
-    type: [[String, String]],
-    required: false,
-  },
-})
+  { _id: false },
+)
   .set('toJSON', {
     transform: (_, ret) => {
       delete ret.__v;
@@ -37,7 +46,6 @@ export const subjectSchema = new Schema({
   .set('toObject', {
     transform: (_, ret) => {
       delete ret.__v;
-      delete ret._id;
       return ret;
     },
     virtuals: true,
