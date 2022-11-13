@@ -4,16 +4,16 @@ import { QuestionEventActions } from 'src/questions/domain/entities/question-act
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { CreateQuestionDto } from '../dto/create-questiondto';
 import { UpdateQuestionDto } from '../dto/update-question.dto';
-import { EventInfo } from 'src/events/events.model';
-import { Question } from 'src/questions/domain/entities/question.model';
-import { QuestionService } from 'src/questions/domain/ports/question.service';
+import { EventInfo } from '../../../events/events.model';
+import { Question } from '../../../questions/domain/entities/question.model';
+import { QuestionService } from '../../../questions/domain/ports/question.service';
 
 @Controller('question')
 export class QuestionController {
   logger = new Logger('Question controller');
   constructor(
     private readonly questionService: QuestionService,
-    private eventEmitter: EventEmitter2,
+    public readonly eventEmitter: EventEmitter2,
   ) {}
 
   @EventPattern('question')
@@ -24,7 +24,7 @@ export class QuestionController {
   @OnEvent(QuestionEventActions.CREATE)
   async handleQuestionCreatedEvent(createQuestionDto: CreateQuestionDto) {
     try {
-      const { question } = await this.questionService.create(createQuestionDto);
+      const question = await this.questionService.create(createQuestionDto);
       this.logger.log(`Created Question ${question.id}`);
     } catch (err) {
       this.logger.error('[Create]', err);

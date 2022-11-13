@@ -1,20 +1,34 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { CreateQuestionDto } from '../dto/create-questiondto';
 import { QuestionController } from './question.controller';
 import { QuestionService } from '../../domain/ports/question.service';
+import { EventInfo } from '../../../events/events.model';
+import { Question } from '../../../questions/domain/entities/question.model';
+import { QuestionEventActions } from '../../../questions/domain/entities/question-actions.enum';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 
 describe('QuestionController', () => {
   const mockQuestion = {
+    id: 'id',
     subject: '',
     title: '',
     options: [],
   };
+
+  const mockQuestionEvent = (action: QuestionEventActions) => ({
+    action,
+    data: mockQuestion,
+  });
 
   let controller: QuestionController;
   let service: QuestionService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
+      imports: [
+        EventEmitterModule.forRoot({
+          delimiter: '.',
+        }),
+      ],
       controllers: [QuestionController],
       providers: [
         {
@@ -39,44 +53,59 @@ describe('QuestionController', () => {
     expect(controller).toBeDefined();
   });
 
-  describe('When calling controller.create', () => {
+  describe('When calling controller.handleEvent with create event', () => {
     test('Then service.create should be called', async () => {
-      controller.create(mockQuestion as CreateQuestionDto);
+      const spy = jest
+        .spyOn(controller.eventEmitter, 'emit')
+        .mockImplementation(() => null);
+      controller.handleEvent(
+        mockQuestionEvent(
+          QuestionEventActions.CREATE,
+        ) as unknown as EventInfo<Question>,
+      );
+      expect(spy).toHaveBeenCalledWith(
+        QuestionEventActions.CREATE,
+        mockQuestion,
+      );
+      controller.handleQuestionCreatedEvent(mockQuestion);
       expect(service.create).toHaveBeenCalled();
     });
   });
 
-  describe('When calling controller.findAll with a Subject id provided', () => {
-    test('Then service.findOneBySubject should be called', async () => {
-      controller.findAll('subjectId');
-      expect(service.findAllBySubject).toHaveBeenCalled();
-    });
-  });
-
-  describe('When calling controller.findAll with no Subject id provided', () => {
-    test('Then service.findOneByUser should be called', async () => {
-      controller.findAll(undefined);
-      expect(service.findAllBySubject).toHaveBeenCalled();
-    });
-  });
-
-  describe('When calling controller.findOne', () => {
-    test('Then service.findOne should be called', async () => {
-      controller.findOne('id');
-      expect(service.findOne).toHaveBeenCalled();
-    });
-  });
-
-  describe('When calling controller.update', () => {
+  describe('When calling controller.handleEvent with update event', () => {
     test('Then service.update should be called', async () => {
-      await controller.update('', {});
+      const spy = jest
+        .spyOn(controller.eventEmitter, 'emit')
+        .mockImplementation(() => null);
+      controller.handleEvent(
+        mockQuestionEvent(
+          QuestionEventActions.UPDATE,
+        ) as unknown as EventInfo<Question>,
+      );
+      expect(spy).toHaveBeenCalledWith(
+        QuestionEventActions.UPDATE,
+        mockQuestion,
+      );
+      controller.handleQuestionUpdatedEvent(mockQuestion);
       expect(service.update).toHaveBeenCalled();
     });
   });
 
-  describe('When calling controller.remove', () => {
+  describe('When calling controller.handleEvent with remove event', () => {
     test('Then service.findOne should be called', async () => {
-      await controller.remove('');
+      const spy = jest
+        .spyOn(controller.eventEmitter, 'emit')
+        .mockImplementation(() => null);
+      controller.handleEvent(
+        mockQuestionEvent(
+          QuestionEventActions.REMOVE,
+        ) as unknown as EventInfo<Question>,
+      );
+      expect(spy).toHaveBeenCalledWith(
+        QuestionEventActions.REMOVE,
+        mockQuestion,
+      );
+      controller.handleQuestionRemovedEvent(mockQuestion);
       expect(service.remove).toHaveBeenCalled();
     });
   });
