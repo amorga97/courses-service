@@ -13,7 +13,7 @@ export class SubjectController {
   logger = new Logger('Subject controller');
   constructor(
     private readonly subjectService: SubjectService,
-    private eventEmitter: EventEmitter2,
+    public readonly eventEmitter: EventEmitter2,
   ) {}
 
   @EventPattern('subject')
