@@ -3,7 +3,7 @@ import { CourseService } from './domain/ports/course.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { courseSchema } from './domain/entities/course.model';
 import { CourseRepository } from './domain/ports/course.repository';
-import { CourseInMemoryRepository } from './adapters/db/subject-in-memory.repository';
+import { CourseInMemoryRepository } from './adapters/db/course-in-memory.repository';
 import { SubjectController } from './adapters/api/course.controller';
 import { EventService } from 'src/events/event-service.service';
 import { ClientsModule, Transport } from '@nestjs/microservices';

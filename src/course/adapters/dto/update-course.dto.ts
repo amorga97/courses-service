@@ -11,10 +11,10 @@ export class UpdateCourseDto {
   @IsNotEmpty()
   @ValidateNested({ each: true })
   @Type(() => UpdateProgressDto)
-  progress: { answered: number; total: number };
+  progress?: { answered: number; total: number };
   @IsOptional()
   @IsNumber()
-  success_rate: number;
+  success_rate?: number;
 }
 
 export class UpdateProgressDto {

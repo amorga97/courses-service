@@ -1,62 +1,60 @@
 import { getModelToken, MongooseModule } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
-import { iSubject, Subject, subjectSchema } from '../entities/course.model';
-import { SubjectService } from './course.service';
-import { SubjectRepository } from './course.repository';
-import { SubjectInMemoryRepository } from '../../adapters/db/subject-in-memory.repository';
-import {
-  iQuestion,
-  questionSchema,
-} from '../../../answer/domain/entities/answer.model';
-import { QuestionRepository } from '../../../answer/domain/ports/answer.repository';
-import { QuestionInMemoryRepository } from '../../../answer/adapters/db/answer-in-memory.repository';
+import { iCourse, Course, courseSchema } from '../entities/course.model';
+import { CourseService } from './course.service';
+import { CourseRepository } from './course.repository';
+import { CourseInMemoryRepository } from '../../adapters/db/course-in-memory.repository';
+import { AnswerRepository } from '../../../answer/domain/ports/answer.repository';
+import { AnswerInMemoryRepository } from '../../../answer/adapters/db/answer-in-memory.repository';
 import { EventService } from '../../../events/event-service.service';
 import {
-  CreateSubjectEvent,
-  RemoveSubjectEvent,
-  UpdateSubjectEvent,
-} from '../../../events/subject.events';
+  CreateCourseEvent,
+  RemoveCourseEvent,
+  UpdateCourseEvent,
+} from '../../../events/Course.events';
+import { iQuestion } from '../../../question/domain/entities/question.model';
+import { answerSchema } from '../../../answer/domain/entities/answer.model';
 
-describe('SubjectService', () => {
-  let service: SubjectService;
+describe('CourseService', () => {
+  let service: CourseService;
 
-  const mockAuthorId = '62b9a9f34e0dfa462d7dcbaf';
+  const mockId = '62b9a9f34e0dfa462d7dcbaf';
 
-  const mockSubject: iSubject = {
-    title: 'test subject',
-    author: mockAuthorId,
+  const mockCourse: iCourse = {
+    user: '1234',
+    subject: '1234',
+    progress: {
+      answered: 0,
+      total: 0,
+    },
   };
 
-  const mockSubjectInDb = { ...mockSubject, id: '62b9a9f34e0dfa462d7dcbaf' };
+  const mockCourseInDb = { ...mockCourse, id: mockId };
 
   const mockQuestion: iQuestion = {
-    subject: '123123123',
-    title: 'Test',
-    options: [
-      {
-        description: 'this is a test option',
-        isCorrect: true,
-      },
-    ],
+    id: '1234',
+    subject: '1234',
+    title: 'testing',
+    options: [],
   };
 
   const mockQueryResult = {
-    toObject: jest.fn().mockReturnValue(mockSubjectInDb),
+    toObject: jest.fn().mockReturnValue(mockCourseInDb),
   };
 
-  const mockSubjectModel = {
+  const mockCourseModel = {
     create: jest.fn().mockResolvedValue(mockQueryResult),
     findOne: jest.fn().mockResolvedValue(mockQueryResult),
     findById: jest.fn().mockResolvedValue(mockQueryResult),
     findByIdAndUpdate: jest.fn().mockResolvedValue({
       toObject: jest.fn().mockReturnValue({
-        ...mockSubjectInDb,
+        ...mockCourseInDb,
         title: 'updated',
       }),
     }),
   };
 
-  const mockQuestionModel = {
+  const mockAnswerModel = {
     find: jest.fn().mockResolvedValue([mockQuestion]),
     deleteMany: jest.fn().mockResolvedValue({ deletedCount: 1 }),
   };
@@ -64,122 +62,128 @@ describe('SubjectService', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
-        SubjectService,
-        { provide: SubjectRepository, useClass: SubjectInMemoryRepository },
-        { provide: QuestionRepository, useClass: QuestionInMemoryRepository },
+        CourseService,
+        { provide: CourseRepository, useClass: CourseInMemoryRepository },
+        { provide: AnswerRepository, useClass: AnswerInMemoryRepository },
         { provide: EventService, useValue: { emit: jest.fn() } },
       ],
       imports: [
-        MongooseModule.forFeature([{ name: 'Subject', schema: subjectSchema }]),
-        MongooseModule.forFeature([
-          { name: 'Question', schema: questionSchema },
-        ]),
+        MongooseModule.forFeature([{ name: 'Course', schema: courseSchema }]),
+        MongooseModule.forFeature([{ name: 'Answer', schema: answerSchema }]),
       ],
     })
-      .overrideProvider(getModelToken('Subject'))
-      .useValue(mockSubjectModel)
-      .overrideProvider(getModelToken('Question'))
-      .useValue(mockQuestionModel)
+      .overrideProvider(getModelToken('Course'))
+      .useValue(mockCourseModel)
+      .overrideProvider(getModelToken('Answer'))
+      .useValue(mockAnswerModel)
       .compile();
 
-    service = module.get<SubjectService>(SubjectService);
+    service = module.get<CourseService>(CourseService);
   });
 
-  describe('When calling service.create with a new subjects info', () => {
-    test('Then it should return the new subject saved to the DB and emit an event', async () => {
-      const result = await service.create(mockSubject);
-      expect(result).toEqual(mockSubjectInDb);
+  describe('When calling service.create with a new Courses info', () => {
+    test('Then it should return the new Course saved to the DB and emit an event', async () => {
+      const result = await service.create(mockCourse);
+      expect(result).toEqual(mockCourseInDb);
       expect(service.eventService.emit).toHaveBeenCalledWith(
-        new CreateSubjectEvent(mockSubjectInDb as unknown as Subject),
+        new CreateCourseEvent(mockCourseInDb as unknown as Course),
       );
     });
   });
 
-  describe('When calling service.create with info from an already registered subject', () => {
+  describe('When calling service.create with info from an already registered Course', () => {
     test('Then it should throw an error and no event should be emitted', async () => {
-      mockSubjectModel.create.mockImplementation(async () => {
+      mockCourseModel.create.mockImplementation(async () => {
         const error = { code: 11000 };
         throw error;
       });
       expect(async () => {
-        await service.create(mockSubject);
+        await service.create(mockCourse);
       }).rejects.toThrow();
       expect(service.eventService.emit).not.toHaveBeenCalled();
     });
   });
 
-  describe('When calling service.findOne with a valid subject id with questions', () => {
-    test('Then it should return the subject from the db', async () => {
+  describe('When calling service.findOne with a valid Course id with questions', () => {
+    test('Then it should return the Course from the db', async () => {
+      mockCourseModel.findById.mockResolvedValueOnce({
+        toObject: jest
+          .fn()
+          .mockReturnValue({ ...mockCourseInDb, questions: [mockQuestion] }),
+      });
       const result = await service.findOne('id', true);
-      expect(result).toEqual({ ...mockSubjectInDb, questions: [mockQuestion] });
+      expect(result).toEqual({ ...mockCourseInDb, questions: [mockQuestion] });
     });
   });
 
-  describe('When calling service.findOne with a valid subject id without questions', () => {
-    test('Then it should return the subject from the db', async () => {
-      expect(await service.findOne('id', false)).toEqual(mockSubjectInDb);
+  describe('When calling service.findOne with a valid Course id without questions', () => {
+    test('Then it should return the Course from the db', async () => {
+      expect(await service.findOne('id', false)).toEqual(mockCourseInDb);
     });
   });
 
-  describe('When calling service.findOne with an invalid subject id', () => {
+  describe('When calling service.findOne with an invalid Course id', () => {
     test('Then it should throw an error', async () => {
-      mockSubjectModel.findById.mockResolvedValueOnce(null);
+      mockCourseModel.findById.mockResolvedValueOnce(null);
       expect(async () => {
         await service.findOne('id', false);
       }).rejects.toThrow();
     });
   });
 
-  describe('When calling service.update with a valid subject id', () => {
-    test('Then it should return the updated subject data and emit an event', async () => {
+  describe('When calling service.update with a valid Course id', () => {
+    test('Then it should return the updated Course data and emit an event', async () => {
       const result = await service.update('id', {
-        ...mockSubjectInDb,
-        title: 'updated',
+        ...mockCourseInDb,
+        progress: { answered: 1, total: 2 },
       });
       expect(result).toEqual({
-        ...mockSubjectInDb,
+        ...mockCourseInDb,
         title: 'updated',
       });
       expect(service.eventService.emit).toHaveBeenCalledWith(
-        new UpdateSubjectEvent({
-          ...mockSubjectInDb,
+        new UpdateCourseEvent({
+          ...mockCourseInDb,
           title: 'updated',
-        } as unknown as Subject),
+        } as unknown as Course),
       );
     });
   });
 
-  describe('When calling service.update with an invalid subject id', () => {
+  describe('When calling service.update with an invalid Course id', () => {
     test('Then it should throw an error and no events should be emitted', async () => {
-      mockSubjectModel.findByIdAndUpdate.mockResolvedValueOnce(null);
+      mockCourseModel.findByIdAndUpdate.mockResolvedValueOnce(null);
       expect(async () => {
-        await service.update('id', { ...mockSubject, title: 'updated' });
+        await service.update('id', {
+          ...mockCourse,
+          progress: { answered: 1, total: 2 },
+        });
       }).rejects.toThrow();
       expect(service.eventService.emit).not.toHaveBeenCalled();
     });
   });
 
-  describe('When calling service.remove with a valid subject id', () => {
-    test('Then it should return the deleted subject and emit an event', async () => {
+  describe('When calling service.remove with a valid Course id', () => {
+    test('Then it should return the deleted Course and emit an event', async () => {
       const mockResponse = {
-        'deleted-questions': 1,
-        subject: mockSubjectInDb,
+        // 'deleted-questions': 1,
+        Course: mockCourseInDb,
       };
-      mockSubjectModel.findById.mockResolvedValueOnce({
+      mockCourseModel.findById.mockResolvedValueOnce({
         delete: jest.fn().mockResolvedValue({
-          toObject: jest.fn().mockReturnValue(mockSubjectInDb),
+          toObject: jest.fn().mockReturnValue(mockCourseInDb),
         }),
       });
       expect(await service.remove('id')).toEqual(mockResponse);
       expect(service.eventService.emit).toHaveBeenCalledWith(
-        new RemoveSubjectEvent({ id: 'id' }),
+        new RemoveCourseEvent({ id: 'id' }),
       );
     });
   });
 
-  describe('When calling service.remove with an invalid subject id', () => {
+  describe('When calling service.remove with an invalid Course id', () => {
     test('Then it should throw an error and no events should be emitted', async () => {
-      mockSubjectModel.findById.mockResolvedValueOnce(null);
+      mockCourseModel.findById.mockResolvedValueOnce(null);
       expect(async () => {
         await service.remove('id');
       }).rejects.toThrow();
