@@ -21,12 +21,12 @@ export class QuestionInMemoryRepository implements QuestionRepository {
   }
 
   async findById(id: string) {
-    return await this.Question.findById(id);
+    return await this.Question.findOne({ id });
   }
 
   async findByIdAndUpdate(id: string, updateQuestionData: Partial<iQuestion>) {
-    const question = await this.Question.findByIdAndUpdate(
-      id,
+    const question = await this.Question.findOneAndUpdate(
+      { id },
       updateQuestionData,
       {
         new: true,
@@ -36,7 +36,7 @@ export class QuestionInMemoryRepository implements QuestionRepository {
     return question.toObject();
   }
   async findByIdAndDelete(id: string) {
-    const deletedQuestion = await this.Question.findById(id);
+    const deletedQuestion = await this.Question.findOne({ id });
     if (deletedQuestion === null) return null;
     return (await deletedQuestion.delete()).toObject();
   }
