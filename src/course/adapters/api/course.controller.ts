@@ -13,7 +13,7 @@ import { CreateCourseDto } from '../dto/create-course.dto';
 import { UpdateCourseDto } from '../dto/update-course.dto';
 
 @Controller('course')
-export class SubjectController {
+export class CourseController {
   constructor(private readonly courseService: CourseService) {}
 
   @Post('')

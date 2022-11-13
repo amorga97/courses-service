@@ -1,23 +1,23 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { CreateSubjectDto } from '../dto/create-course.dto';
-import { SubjectController } from './course.controller';
-import { SubjectService } from '../../domain/ports/course.service';
+import { CreateCourseDto } from '../dto/create-course.dto';
+import { CourseController } from './course.controller';
+import { CourseService } from '../../domain/ports/course.service';
 
-describe('SubjectController', () => {
-  const mockSubjectToAdd: CreateSubjectDto = {
-    title: '',
-    author: '',
+describe('CourseController', () => {
+  const mockSubjectToAdd: CreateCourseDto = {
+    user: '1234',
+    subject: '1234',
   };
 
-  let controller: SubjectController;
-  let service: SubjectService;
+  let controller: CourseController;
+  let service: CourseService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      controllers: [SubjectController],
+      controllers: [CourseController],
       providers: [
         {
-          provide: SubjectService,
+          provide: CourseService,
           useValue: {
             create: jest.fn(),
             findOne: jest.fn(),
@@ -28,13 +28,13 @@ describe('SubjectController', () => {
       ],
     }).compile();
 
-    controller = module.get<SubjectController>(SubjectController);
-    service = module.get<SubjectService>(SubjectService);
+    controller = module.get<CourseController>(CourseController);
+    service = module.get<CourseService>(CourseService);
   });
 
   describe('When calling controller.create', () => {
     test('Then service.create should be called', async () => {
-      controller.create(mockSubjectToAdd as CreateSubjectDto);
+      controller.create(mockSubjectToAdd as CreateCourseDto);
       expect(service.create).toHaveBeenCalled();
     });
   });
