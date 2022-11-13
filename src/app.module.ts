@@ -7,6 +7,7 @@ import { AppService } from './app.service';
 import { SubjectModule } from './subject/subject.module';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { QuestionModule } from './question/question.module';
+import { CourseModule } from './course/course.module';
 
 @Module({
   imports: [
@@ -40,6 +41,7 @@ import { QuestionModule } from './question/question.module';
     ),
     SubjectModule,
     QuestionModule,
+    CourseModule,
   ],
   controllers: [AppController],
   providers: [AppService],

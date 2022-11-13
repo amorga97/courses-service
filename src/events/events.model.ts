@@ -1,11 +1,11 @@
-import { SubjectEventActions } from 'src/subject/domain/entities/subject-actions.enum';
+import { CourseEventActions } from './Course.events';
 
 export interface EventData<T> {
-  topic: 'subject' | 'question';
+  topic: 'course' | 'answer';
   info: EventInfo<T>;
 }
 
 export interface EventInfo<T> {
-  action: SubjectEventActions;
+  action: CourseEventActions;
   data: T | { id: string };
 }
