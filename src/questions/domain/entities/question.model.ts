@@ -1,39 +1,38 @@
-import { Schema, SchemaTypes, Types } from 'mongoose';
+import { Schema, SchemaTypes } from 'mongoose';
 
-export const questionSchema = new Schema(
-  {
-    _id: {
-      type: String,
-      required: true,
-      unique: true,
-      length: 24,
-    },
-    subject: { type: SchemaTypes.ObjectId, ref: 'Subject', required: true },
-    title: { type: SchemaTypes.String, required: true },
-    options: {
-      type: [
-        new Schema(
-          {
-            description: String,
-            isCorrect: Boolean,
-          },
-          { _id: false },
-        ),
-      ],
-      required: true,
-      length: { min: 2 },
-    },
+export const questionSchema = new Schema({
+  id: {
+    type: String,
+    required: true,
+    unique: true,
+    length: 24,
   },
-  { _id: false },
-)
+  subject: { type: SchemaTypes.ObjectId, ref: 'Subject', required: true },
+  title: { type: SchemaTypes.String, required: true },
+  options: {
+    type: [
+      new Schema(
+        {
+          description: String,
+          isCorrect: Boolean,
+        },
+        { _id: false },
+      ),
+    ],
+    required: true,
+    length: { min: 2 },
+  },
+})
   .set('toJSON', {
     transform: (_, ret) => {
       delete ret.__v;
+      delete ret._id;
     },
   })
   .set('toObject', {
     transform: (_, ret) => {
       delete ret.__v;
+      delete ret._id;
       return ret;
     },
     virtuals: true,
@@ -45,7 +44,6 @@ export interface iOption {
 }
 
 export interface iQuestion {
-  _id?: Types.ObjectId;
   id: string;
   subject: string;
   title: string;
@@ -53,7 +51,6 @@ export interface iQuestion {
 }
 
 export class Question implements iQuestion {
-  _id?: Types.ObjectId;
   id: string;
   subject: string;
   title: string;
