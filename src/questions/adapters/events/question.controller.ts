@@ -34,7 +34,7 @@ export class QuestionController {
   @OnEvent(QuestionEventActions.UPDATE)
   async handleQuestionUpdatedEvent(updateQuestionDto: UpdateQuestionDto) {
     try {
-      const { question } = await this.questionService.update(
+      const question = await this.questionService.update(
         updateQuestionDto.id,
         updateQuestionDto,
       );

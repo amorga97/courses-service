@@ -1,7 +1,10 @@
 import { getModelToken, MongooseModule } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
 import { QuestionInMemoryRepository } from '../../adapters/db/question-in-memory.repository';
-import { subjectSchema } from '../../../subject/domain/entities/subject.model';
+import {
+  iSubject,
+  subjectSchema,
+} from '../../../subject/domain/entities/subject.model';
 import { iQuestion, questionSchema } from '../entities/question.model';
 import { QuestionRepository } from './question.repository';
 import { QuestionService } from './question.service';
@@ -16,7 +19,8 @@ describe('QuestionService', () => {
 
   const mockSubjectId = '62b9a9f34e0dfa462d7dcbaf';
 
-  const mockQuestion: Omit<iQuestion, '_id'> = {
+  const mockQuestion: iQuestion = {
+    id: '62b9a9f34e0dfa462d7dcbaf',
     options: [
       mockOption,
       mockOption,
@@ -27,15 +31,15 @@ describe('QuestionService', () => {
     title: 'test question',
   };
 
-  const mockBar = {
-    id: 'testID',
-    reservations: [],
-    save: jest.fn(),
+  const mockSubject: iSubject = {
+    id: '62b9a9f34e0dfa462d7dcbaf',
+    title: 'test subject',
+    author: '62b9a9f34e0dfa462d7dcbaf',
   };
 
   const mockSubjectModel = {
-    findById: jest.fn().mockResolvedValue(mockBar),
-    findByIdAndUpdate: jest.fn().mockResolvedValue(mockBar),
+    findById: jest.fn().mockResolvedValue(mockSubject),
+    findByIdAndUpdate: jest.fn().mockResolvedValue(mockSubject),
     exists: jest.fn().mockReturnValue(true),
   };
 
@@ -46,15 +50,15 @@ describe('QuestionService', () => {
         .mockReturnValue({ ...mockQuestion, id: '62b9a9f34e0dfa462d7dcbaf' }),
     }),
     find: jest.fn().mockReturnValue(mockQuestion),
-    findById: jest.fn().mockReturnValue(mockQuestion),
-    findByIdAndUpdate: jest.fn().mockReturnValue({
+    findOne: jest.fn().mockReturnValue(mockQuestion),
+    findOneAndUpdate: jest.fn().mockReturnValue({
       toObject: jest.fn().mockReturnValue({
         ...mockQuestion,
         id: '62b9a9f34e0dfa462d7dcbaf',
         title: 'updated',
       }),
     }),
-    findByIdAndDelete: jest.fn().mockResolvedValue(mockQuestion),
+    findOneAndDelete: jest.fn().mockResolvedValue(mockQuestion),
   };
 
   let service: QuestionService;
@@ -91,30 +95,27 @@ describe('QuestionService', () => {
   describe('When calling service.create with valid params', () => {
     test('It should create a new question', async () => {
       const result = await service.create(mockQuestion);
-      expect(result).toHaveProperty('question', {
-        ...mockQuestion,
-        id: '62b9a9f34e0dfa462d7dcbaf',
-      });
+      expect(result).toEqual(mockQuestion);
     });
   });
 
   describe('When calling service.create with invalid request body', () => {
-    test('It should throw an error', async () => {
+    test('It should return null', async () => {
       mockQuestionModel.create.mockImplementationOnce(async () => {
         const error = new Error();
         error.name = 'ValidationError';
         throw error;
       });
-      expect(async () => {
-        await service.create(mockQuestion);
-      }).rejects.toThrow();
+      const result = await service.create(mockQuestion);
+      expect(result).toBeNull();
     });
   });
 
   describe('When calling service.create with the id of a non existing subject', () => {
-    test('It should throw an error', async () => {
+    test('It should return null', async () => {
       mockSubjectModel.exists.mockResolvedValueOnce(null);
-      expect(service.create(mockQuestion)).rejects.toThrow();
+      const result = await service.create(mockQuestion);
+      expect(result).toBeNull();
     });
   });
 
@@ -128,11 +129,10 @@ describe('QuestionService', () => {
   });
 
   describe('When calling service.findAllBySubject with a non existing subject id', () => {
-    test('It should throw an error', async () => {
+    test('It should return null', async () => {
       mockSubjectModel.exists.mockResolvedValueOnce(false);
-      expect(async () => {
-        await service.findAllBySubject(mockSubjectId);
-      }).rejects.toThrow();
+      const result = await service.findAllBySubject(mockSubjectId);
+      expect(result).toBeNull();
     });
   });
 
@@ -143,11 +143,10 @@ describe('QuestionService', () => {
   });
 
   describe('When calling service.findOne with a non existing question id', () => {
-    test('It should throw an error', async () => {
-      mockQuestionModel.findById.mockReturnValueOnce(null);
-      expect(async () => {
-        await service.findOne('id');
-      }).rejects.toThrow();
+    test('It should return null', async () => {
+      mockQuestionModel.findOne.mockReturnValueOnce(null);
+      const result = await service.findOne('id');
+      expect(result).toBeNull();
     });
   });
 
@@ -157,47 +156,40 @@ describe('QuestionService', () => {
         ...mockQuestion,
         title: 'updated',
       });
-      expect(result).toHaveProperty('question', {
+      expect(result).toEqual({
         ...mockQuestion,
-        id: '62b9a9f34e0dfa462d7dcbaf',
-        subject: mockSubjectId,
         title: 'updated',
       });
     });
   });
 
   describe('When calling service.update with a non existing question id', () => {
-    test('It should throw an error', async () => {
-      mockQuestionModel.findByIdAndUpdate.mockReturnValueOnce(null);
-      expect(async () => {
-        await service.update('id', { ...mockQuestion, title: 'updated' });
-      }).rejects.toThrow();
+    test('It should return null', async () => {
+      mockQuestionModel.findOneAndUpdate.mockReturnValueOnce(null);
+      const result = await service.update('id', {
+        ...mockQuestion,
+        title: 'updated',
+      });
+      expect(result).toBeNull();
     });
   });
 
   describe('When calling service.delete with an existing question id', () => {
     test('It should return the deleted question', async () => {
-      mockQuestionModel.findById.mockResolvedValueOnce({
+      mockQuestionModel.findOne.mockResolvedValueOnce({
         delete: jest.fn().mockResolvedValue({
-          toObject: jest.fn().mockReturnValue({
-            ...mockQuestion,
-            id: '62b9a9f34e0dfa462d7dcbaf',
-          }),
+          toObject: jest.fn().mockReturnValue(mockQuestion),
         }),
       });
-      expect(await service.remove('id')).toEqual({
-        ...mockQuestion,
-        id: '62b9a9f34e0dfa462d7dcbaf',
-      });
+      expect(await service.remove('id')).toEqual(mockQuestion);
     });
   });
 
   describe('When calling service.delete with a non existing question id', () => {
-    test('It should throw an error', async () => {
-      mockQuestionModel.findById.mockResolvedValueOnce(null);
-      expect(async () => {
-        await service.remove('id');
-      }).rejects.toThrow();
+    test('It should return null', async () => {
+      mockQuestionModel.findOne.mockResolvedValueOnce(null);
+      const result = await service.remove('id');
+      expect(result).toBeNull();
     });
   });
 });

@@ -22,15 +22,15 @@ export class QuestionService {
         );
       }
       const question = await this.Question.create(createQuestionDto);
-      return {
-        question,
-      };
+      return question;
     } catch (err) {
       if (err.name === 'ValidationError') {
         this.logger.error(err);
+        return null;
       }
       this.logger.error(err.message);
       this.logger.error(err);
+      return null;
     }
   }
 
@@ -39,6 +39,7 @@ export class QuestionService {
       return this.Question.find({ subject: subjectId });
     }
     this.logger.error('Subject not found');
+    return null;
   }
 
   async findOne(id: string) {
@@ -53,7 +54,7 @@ export class QuestionService {
       updateQuestionDto,
     );
     if (updatedQuestion === null) this.logger.error('Question not found');
-    return { question: updatedQuestion };
+    return updatedQuestion;
   }
 
   async remove(id: string) {
