@@ -55,6 +55,7 @@ export class SubjectService {
 
   async remove(id: string) {
     const removedSubject = await this.Subject.findByIdAndDelete(id);
+    await this.Question.deleteManyBySubjectId(id);
     if (removedSubject === null) {
       this.logger.error('Subject not found');
       return;

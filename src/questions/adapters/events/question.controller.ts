@@ -23,24 +23,36 @@ export class QuestionController {
 
   @OnEvent(QuestionEventActions.CREATE)
   async handleQuestionCreatedEvent(createQuestionDto: CreateQuestionDto) {
-    const questionForDb = { ...createQuestionDto, _id: createQuestionDto.id };
-    delete questionForDb.id;
-    const { question } = await this.questionService.create(questionForDb);
-    this.logger.log(`Created Question ${question.id}`);
+    try {
+      const questionForDb = { ...createQuestionDto, _id: createQuestionDto.id };
+      delete questionForDb.id;
+      const { question } = await this.questionService.create(questionForDb);
+      this.logger.log(`Created Question ${question.id}`);
+    } catch (err) {
+      this.logger.error(err);
+    }
   }
 
   @OnEvent(QuestionEventActions.UPDATE)
   async handleQuestionUpdatedEvent(updateQuestionDto: UpdateQuestionDto) {
-    const { question } = await this.questionService.update(
-      updateQuestionDto.id,
-      updateQuestionDto,
-    );
-    this.logger.log(`Updated Question ${question.id}`);
+    try {
+      const { question } = await this.questionService.update(
+        updateQuestionDto.id,
+        updateQuestionDto,
+      );
+      this.logger.log(`Updated Question ${question.id}`);
+    } catch (err) {
+      this.logger.error(err);
+    }
   }
 
   @OnEvent(QuestionEventActions.REMOVE)
   async handleQuestionRemovedEvent({ id }: { id: string }) {
-    const { id: removedQuestionId } = await this.questionService.remove(id);
-    this.logger.log(`Removed Question ${removedQuestionId}`);
+    try {
+      const { id: removedQuestionId } = await this.questionService.remove(id);
+      this.logger.log(`Removed Question ${removedQuestionId}`);
+    } catch (err) {
+      this.logger.error(err);
+    }
   }
 }
