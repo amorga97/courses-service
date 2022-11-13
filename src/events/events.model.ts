@@ -1,3 +1,4 @@
+import { AnswerEventActions } from './Answer.events';
 import { CourseEventActions } from './Course.events';
 
 export interface EventData<T> {
@@ -6,6 +7,6 @@ export interface EventData<T> {
 }
 
 export interface EventInfo<T> {
-  action: CourseEventActions;
+  action: CourseEventActions | AnswerEventActions;
   data: T | { id: string };
 }
