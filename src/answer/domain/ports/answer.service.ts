@@ -17,7 +17,7 @@ import { UpdateAnswerDto } from '../../adapters/dto/update-answer.dto';
 import { AnswerRepository } from './answer.repository';
 import { Answer, iAnswer } from '../entities/answer.model';
 import { Types } from 'mongoose';
-import { QuestionRepository } from 'src/question/domain/ports/question.repository';
+import { QuestionRepository } from '../../../question/domain/ports/question.repository';
 
 @Injectable()
 export class AnswerService {

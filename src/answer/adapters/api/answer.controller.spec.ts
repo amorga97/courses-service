@@ -1,24 +1,34 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { CreateQuestionDto } from '../dto/create-answer.dto';
-import { QuestionController } from './answer.controller';
-import { QuestionService } from '../../domain/ports/answer.service';
+import { CreateAnswerDto } from '../dto/create-answer.dto';
+import { AnswerController } from './answer.controller';
+import { AnswerService } from '../../domain/ports/answer.service';
 
-describe('QuestionController', () => {
-  const mockQuestion = {
+describe('AnswerController', () => {
+  const mockAnswer = {
+    user: '',
     subject: '',
-    title: '',
-    options: [],
+    question: '',
+    average_answer_time: 0,
+    stats: {
+      answers: 0,
+      correct: 0,
+      wrong: 0,
+    },
+    last_answer: {
+      date: '',
+      correct: false,
+    },
   };
 
-  let controller: QuestionController;
-  let service: QuestionService;
+  let controller: AnswerController;
+  let service: AnswerService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      controllers: [QuestionController],
+      controllers: [AnswerController],
       providers: [
         {
-          provide: QuestionService,
+          provide: AnswerService,
           useValue: {
             create: jest.fn(),
             findOne: jest.fn(),
@@ -31,8 +41,8 @@ describe('QuestionController', () => {
       ],
     }).compile();
 
-    controller = module.get<QuestionController>(QuestionController);
-    service = module.get<QuestionService>(QuestionService);
+    controller = module.get<AnswerController>(AnswerController);
+    service = module.get<AnswerService>(AnswerService);
   });
 
   it('should be defined', () => {
@@ -41,7 +51,7 @@ describe('QuestionController', () => {
 
   describe('When calling controller.create', () => {
     test('Then service.create should be called', async () => {
-      controller.create(mockQuestion as CreateQuestionDto);
+      controller.create(mockAnswer as CreateAnswerDto);
       expect(service.create).toHaveBeenCalled();
     });
   });
@@ -69,7 +79,7 @@ describe('QuestionController', () => {
 
   describe('When calling controller.update', () => {
     test('Then service.update should be called', async () => {
-      await controller.update('', {});
+      await controller.update('', { time: 123, isCorrect: true });
       expect(service.update).toHaveBeenCalled();
     });
   });
