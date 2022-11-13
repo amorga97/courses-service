@@ -24,12 +24,10 @@ export class QuestionController {
   @OnEvent(QuestionEventActions.CREATE)
   async handleQuestionCreatedEvent(createQuestionDto: CreateQuestionDto) {
     try {
-      const questionForDb = { ...createQuestionDto, _id: createQuestionDto.id };
-      delete questionForDb.id;
-      const { question } = await this.questionService.create(questionForDb);
+      const { question } = await this.questionService.create(createQuestionDto);
       this.logger.log(`Created Question ${question.id}`);
     } catch (err) {
-      this.logger.error(err);
+      this.logger.error('[Create]', err);
     }
   }
 
@@ -42,7 +40,7 @@ export class QuestionController {
       );
       this.logger.log(`Updated Question ${question.id}`);
     } catch (err) {
-      this.logger.error(err);
+      this.logger.error('[Update]', err);
     }
   }
 
@@ -52,7 +50,7 @@ export class QuestionController {
       const { id: removedQuestionId } = await this.questionService.remove(id);
       this.logger.log(`Removed Question ${removedQuestionId}`);
     } catch (err) {
-      this.logger.error(err);
+      this.logger.error('[Remove]', err);
     }
   }
 }

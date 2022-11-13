@@ -28,7 +28,6 @@ export class QuestionService {
     } catch (err) {
       if (err.name === 'ValidationError') {
         this.logger.error(err);
-        this.logger.error('Invalid params');
       }
       this.logger.error(err.message);
       this.logger.error(err);

@@ -2,7 +2,6 @@ import { Inject, Injectable, Logger } from '@nestjs/common';
 import { QuestionRepository } from '../../../questions/domain/ports/question.repository';
 import { CreateSubjectDto } from '../../adapters/dto/create-subject.dto';
 import { UpdateSubjectDto } from '../../adapters/dto/update-subject.dto';
-import { iSubject } from '../entities/subject.model';
 import { SubjectRepository } from './subject.repository';
 
 @Injectable()
@@ -15,14 +14,7 @@ export class SubjectService {
 
   async create(createSubjectDto: CreateSubjectDto) {
     try {
-      const subjectForDb = {
-        ...createSubjectDto,
-        _id: createSubjectDto.id,
-      };
-      delete subjectForDb.id;
-      const registeredSubject = await this.Subject.create(
-        subjectForDb as unknown as iSubject,
-      );
+      const registeredSubject = await this.Subject.create(createSubjectDto);
       return registeredSubject;
     } catch (err) {
       this.logger.error(err);
