@@ -9,7 +9,7 @@ import {
   CreateCourseEvent,
   RemoveCourseEvent,
   UpdateCourseEvent,
-} from '../../../events/Course.events';
+} from '../../../events/course.events';
 import { EventService } from '../../../events/event-service.service';
 import { CreateCourseDto } from '../../adapters/dto/create-course.dto';
 import { UpdateCourseDto } from '../../adapters/dto/update-course.dto';

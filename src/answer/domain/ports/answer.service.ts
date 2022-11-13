@@ -10,7 +10,7 @@ import {
   CreateAnswerEvent,
   RemoveAnswerEvent,
   UpdateAnswerEvent,
-} from '../../../events/Answer.events';
+} from '../../../events/answer.events';
 import { SubjectRepository } from '../../../subject/domain/ports/subject.repository';
 import { CreateAnswerDto } from '../../adapters/dto/create-answer.dto';
 import { UpdateAnswerDto } from '../../adapters/dto/update-answer.dto';
