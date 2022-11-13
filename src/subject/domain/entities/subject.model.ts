@@ -1,5 +1,5 @@
 import { Schema } from 'mongoose';
-import { iQuestion } from 'src/questions/domain/entities/question.model';
+import { iQuestion } from 'src/question/domain/entities/question.model';
 
 export const subjectSchema = new Schema({
   id: {

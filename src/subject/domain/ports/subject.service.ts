@@ -1,5 +1,5 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import { QuestionRepository } from '../../../questions/domain/ports/question.repository';
+import { QuestionRepository } from '../../../question/domain/ports/question.repository';
 import { CreateSubjectDto } from '../../adapters/dto/create-subject.dto';
 import { UpdateSubjectDto } from '../../adapters/dto/update-subject.dto';
 import { SubjectRepository } from './subject.repository';

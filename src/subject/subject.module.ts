@@ -5,9 +5,9 @@ import { subjectSchema } from './domain/entities/subject.model';
 import { SubjectRepository } from './domain/ports/subject.repository';
 import { SubjectInMemoryRepository } from './adapters/db/subject-in-memory.repository';
 import { SubjectController } from './adapters/events/subject.controller';
-import { QuestionRepository } from 'src/questions/domain/ports/question.repository';
-import { QuestionInMemoryRepository } from 'src/questions/adapters/db/question-in-memory.repository';
-import { questionSchema } from 'src/questions/domain/entities/question.model';
+import { QuestionRepository } from 'src/question/domain/ports/question.repository';
+import { QuestionInMemoryRepository } from 'src/question/adapters/db/question-in-memory.repository';
+import { questionSchema } from 'src/question/domain/entities/question.model';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 
 @Module({

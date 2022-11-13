@@ -1,12 +1,12 @@
 import { Controller, Logger } from '@nestjs/common';
 import { EventPattern } from '@nestjs/microservices';
-import { QuestionEventActions } from 'src/questions/domain/entities/question-actions.enum';
+import { QuestionEventActions } from 'src/question/domain/entities/question-actions.enum';
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { CreateQuestionDto } from '../dto/create-questiondto';
 import { UpdateQuestionDto } from '../dto/update-question.dto';
 import { EventInfo } from '../../../events/events.model';
-import { Question } from '../../../questions/domain/entities/question.model';
-import { QuestionService } from '../../../questions/domain/ports/question.service';
+import { Question } from '../../domain/entities/question.model';
+import { QuestionService } from '../../domain/ports/question.service';
 
 @Controller('question')
 export class QuestionController {

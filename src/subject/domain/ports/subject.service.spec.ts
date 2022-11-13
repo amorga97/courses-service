@@ -7,9 +7,9 @@ import { SubjectInMemoryRepository } from '../../adapters/db/subject-in-memory.r
 import {
   iQuestion,
   questionSchema,
-} from '../../../questions/domain/entities/question.model';
-import { QuestionRepository } from '../../../questions/domain/ports/question.repository';
-import { QuestionInMemoryRepository } from '../../../questions/adapters/db/question-in-memory.repository';
+} from '../../../question/domain/entities/question.model';
+import { QuestionRepository } from '../../../question/domain/ports/question.repository';
+import { QuestionInMemoryRepository } from '../../../question/adapters/db/question-in-memory.repository';
 
 describe('SubjectService', () => {
   let service: SubjectService;

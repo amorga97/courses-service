@@ -2,8 +2,8 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { QuestionController } from './question.controller';
 import { QuestionService } from '../../domain/ports/question.service';
 import { EventInfo } from '../../../events/events.model';
-import { Question } from '../../../questions/domain/entities/question.model';
-import { QuestionEventActions } from '../../../questions/domain/entities/question-actions.enum';
+import { Question } from '../../domain/entities/question.model';
+import { QuestionEventActions } from '../../domain/entities/question-actions.enum';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 
 describe('QuestionController', () => {

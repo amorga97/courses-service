@@ -9,7 +9,7 @@ import {
   ValidateNested,
   ArrayMinSize,
 } from 'class-validator';
-import { iOption } from 'src/questions/domain/entities/question.model';
+import { iOption } from 'src/question/domain/entities/question.model';
 
 export class CreateQuestionDto {
   @IsNotEmpty()
