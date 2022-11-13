@@ -191,7 +191,7 @@ describe('AnswerService', () => {
     });
   });
 
-  fdescribe('When calling service.update with an existing Answer id', () => {
+  describe('When calling service.update with an existing Answer id', () => {
     test('It should return the updated Answer and emit an event', async () => {
       const answer = { ...mockAnswer, id: '62b9a9f34e0dfa462d7dcbaf' };
       mockAnswerModel.findById.mockResolvedValueOnce(answer);
