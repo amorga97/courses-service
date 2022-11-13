@@ -18,6 +18,7 @@ export class SubjectService {
       return registeredSubject;
     } catch (err) {
       this.logger.error(err);
+      return null;
     }
   }
 
@@ -25,7 +26,7 @@ export class SubjectService {
     const subject = await this.Subject.findById(id);
     if (subject === null) {
       this.logger.error('Subject not found');
-      return;
+      return null;
     }
     if (withQuestions) {
       const questions = await this.Question.find({ subject: subject.id });
@@ -40,7 +41,7 @@ export class SubjectService {
     });
     if (updatedSubject === null) {
       this.logger.error('Subject not found');
-      return;
+      return null;
     }
     return updatedSubject;
   }
@@ -50,7 +51,6 @@ export class SubjectService {
     await this.Question.deleteManyBySubjectId(id);
     if (removedSubject === null) {
       this.logger.error('Subject not found');
-      return;
     }
     return removedSubject;
   }
