@@ -1,6 +1,6 @@
 import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
-import { MicroserviceOptions, Transport } from '@nestjs/microservices';
+import { Transport } from '@nestjs/microservices';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
@@ -10,19 +10,18 @@ async function bootstrap() {
       enableDebugMessages: true,
     }),
   );
-  await app.listen(process.env.PORT);
-  const kafkaConsumer =
-    await NestFactory.createMicroservice<MicroserviceOptions>(AppModule, {
-      transport: Transport.KAFKA,
-      options: {
-        client: {
-          brokers: ['localhost:29092'],
-        },
-        consumer: {
-          groupId: 'subjects-consumer',
-        },
+  app.connectMicroservice({
+    transport: Transport.KAFKA,
+    options: {
+      client: {
+        brokers: ['localhost:29092'],
       },
-    });
-  kafkaConsumer.listen();
+      consumer: {
+        groupId: 'subjects-consumer',
+      },
+    },
+  });
+  await app.startAllMicroservices();
+  await app.listen(process.env.PORT);
 }
 bootstrap();
