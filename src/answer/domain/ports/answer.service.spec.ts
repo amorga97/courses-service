@@ -11,16 +11,16 @@ import { AnswerService } from './answer.service';
 import { SubjectRepository } from '../../../subject/domain/ports/subject.repository';
 import { SubjectInMemoryRepository } from '../../../subject/adapters/db/subject-in-memory.repository';
 import { EventService } from '../../../events/event-service.service';
-import {
-  CreateAnswerEvent,
-  RemoveAnswerEvent,
-} from '../../../events/Answer.events';
 import { QuestionRepository } from '../../../question/domain/ports/question.repository';
 import { QuestionInMemoryRepository } from '../../../question/adapters/db/question-in-memory.repository';
 import {
   Question,
   questionSchema,
 } from '../../../question/domain/entities/question.model';
+import {
+  CreateAnswerEvent,
+  RemoveAnswerEvent,
+} from '../../../events/answer.events';
 
 describe('AnswerService', () => {
   const mockSubjectId = '62b9a9f34e0dfa462d7dcbaf';

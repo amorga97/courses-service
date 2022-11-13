@@ -11,7 +11,7 @@ import {
   CreateCourseEvent,
   RemoveCourseEvent,
   UpdateCourseEvent,
-} from '../../../events/Course.events';
+} from '../../../events/course.events';
 import { iQuestion } from '../../../question/domain/entities/question.model';
 import { answerSchema } from '../../../answer/domain/entities/answer.model';
 
