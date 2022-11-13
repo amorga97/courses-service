@@ -1,125 +1,150 @@
 import { getModelToken, MongooseModule } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
-import { QuestionInMemoryRepository } from '../../adapters/db/answer-in-memory.repository';
-import { subjectSchema } from '../../../subject/domain/entities/subject.model';
-import { iQuestion, Question, questionSchema } from '../entities/answer.model';
-import { QuestionRepository } from './answer.repository';
-import { QuestionService } from './answer.service';
+import { AnswerInMemoryRepository } from '../../adapters/db/answer-in-memory.repository';
+import {
+  Subject,
+  subjectSchema,
+} from '../../../subject/domain/entities/subject.model';
+import { Answer, answerSchema } from '../entities/answer.model';
+import { AnswerRepository } from './answer.repository';
+import { AnswerService } from './answer.service';
 import { SubjectRepository } from '../../../subject/domain/ports/subject.repository';
 import { SubjectInMemoryRepository } from '../../../subject/adapters/db/subject-in-memory.repository';
 import { EventService } from '../../../events/event-service.service';
 import {
-  CreateQuestionEvent,
-  RemoveQuestionEvent,
-  UpdateQuestionEvent,
-} from '../../../events/question.events';
+  CreateAnswerEvent,
+  RemoveAnswerEvent,
+} from '../../../events/Answer.events';
+import { QuestionRepository } from '../../../question/domain/ports/question.repository';
+import { QuestionInMemoryRepository } from '../../../question/adapters/db/question-in-memory.repository';
+import {
+  Question,
+  questionSchema,
+} from '../../../question/domain/entities/question.model';
 
-describe('QuestionService', () => {
-  const mockOption = {
-    description: 'mock option',
-    isCorrect: false,
-  };
-
+describe('AnswerService', () => {
   const mockSubjectId = '62b9a9f34e0dfa462d7dcbaf';
 
-  const mockQuestion: Omit<iQuestion, '_id'> = {
-    options: [
-      mockOption,
-      mockOption,
-      mockOption,
-      { ...mockOption, isCorrect: true },
-    ],
-    subject: mockSubjectId,
-    title: 'test question',
+  const mockAnswer = {
+    user: '62b9a9f34e0dfa462d7dcbaf',
+    subject: '62b9a9f34e0dfa462d7dcbaf',
+    question: '62b9a9f34e0dfa462d7dcbaf',
+    average_answer_time: 0,
+    stats: {
+      answers: 0,
+      correct: 0,
+      wrong: 0,
+    },
+    last_answer: {
+      date: '',
+      correct: true,
+    },
   };
 
-  const mockBar = {
-    id: 'testID',
-    reservations: [],
-    save: jest.fn(),
+  const mockSubject: Subject = {
+    id: '',
+    title: '',
+    author: '',
+  };
+
+  const mockQuestion: Question = {
+    id: '62b9a9f34e0dfa462d7dcbaf',
+    subject: '',
+    title: '',
+    options: [],
   };
 
   const mockSubjectModel = {
-    findById: jest.fn().mockResolvedValue(mockBar),
-    findByIdAndUpdate: jest.fn().mockResolvedValue(mockBar),
-    exists: jest.fn().mockReturnValue(true),
+    findById: jest.fn().mockResolvedValue(mockSubject),
+    findByIdAndUpdate: jest.fn().mockResolvedValue(mockSubject),
+    exists: jest.fn().mockResolvedValue(true),
   };
 
-  const mockQuestionModel = {
+  const mockQuesionModel = {
+    findOne: jest.fn().mockResolvedValue(mockQuestion),
+  };
+
+  const mockAnswerModel = {
     create: jest.fn().mockResolvedValue({
       toObject: jest
         .fn()
-        .mockReturnValue({ ...mockQuestion, id: '62b9a9f34e0dfa462d7dcbaf' }),
+        .mockReturnValue({ ...mockAnswer, id: '62b9a9f34e0dfa462d7dcbaf' }),
     }),
-    find: jest.fn().mockReturnValue(mockQuestion),
-    findById: jest.fn().mockReturnValue(mockQuestion),
+    find: jest.fn().mockReturnValue(mockAnswer),
+    findById: jest.fn().mockReturnValue(mockAnswer),
     findByIdAndUpdate: jest.fn().mockReturnValue({
       toObject: jest.fn().mockReturnValue({
-        ...mockQuestion,
+        ...mockAnswer,
         id: '62b9a9f34e0dfa462d7dcbaf',
-        title: 'updated',
       }),
     }),
-    findByIdAndDelete: jest.fn().mockResolvedValue(mockQuestion),
+    findByIdAndDelete: jest.fn().mockResolvedValue(mockAnswer),
   };
 
-  let service: QuestionService;
+  let service: AnswerService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
-        QuestionService,
+        AnswerService,
         {
-          provide: QuestionRepository,
-          useClass: QuestionInMemoryRepository,
+          provide: AnswerRepository,
+          useClass: AnswerInMemoryRepository,
         },
         {
           provide: SubjectRepository,
           useClass: SubjectInMemoryRepository,
         },
+        {
+          provide: QuestionRepository,
+          useClass: QuestionInMemoryRepository,
+        },
         { provide: EventService, useValue: { emit: jest.fn() } },
       ],
       imports: [
         MongooseModule.forFeature([
-          { name: 'Question', schema: questionSchema },
+          { name: 'Answer', schema: answerSchema },
           { name: 'Subject', schema: subjectSchema },
+          { name: 'Question', schema: questionSchema },
         ]),
       ],
     })
-      .overrideProvider(getModelToken('Question'))
-      .useValue(mockQuestionModel)
+      .overrideProvider(getModelToken('Answer'))
+      .useValue(mockAnswerModel)
       .overrideProvider(getModelToken('Subject'))
       .useValue(mockSubjectModel)
+      .overrideProvider(getModelToken('Question'))
+      .useValue(mockQuesionModel)
       .compile();
 
-    service = module.get<QuestionService>(QuestionService);
+    service = module.get<AnswerService>(AnswerService);
   });
 
   describe('When calling service.create with valid params', () => {
-    test('It should create a new question and emit an event', async () => {
-      const result = await service.create(mockQuestion);
-      expect(result).toHaveProperty('question', {
-        ...mockQuestion,
+    test('It should create a new Answer and emit an event', async () => {
+      const result = await service.create(mockAnswer);
+      expect(result).toHaveProperty('answer', {
+        ...mockAnswer,
         id: '62b9a9f34e0dfa462d7dcbaf',
       });
       expect(service.eventService.emit).toHaveBeenCalledWith(
-        new CreateQuestionEvent({
-          ...mockQuestion,
+        new CreateAnswerEvent({
+          ...mockAnswer,
           id: '62b9a9f34e0dfa462d7dcbaf',
-        } as unknown as Question),
+        } as unknown as Answer),
       );
     });
   });
 
   describe('When calling service.create with invalid request body', () => {
     test('It should throw an error and no events should be emitted', async () => {
-      mockQuestionModel.create.mockImplementationOnce(async () => {
+      mockAnswerModel.create.mockImplementationOnce(async () => {
         const error = new Error();
         error.name = 'ValidationError';
         throw error;
       });
       expect(async () => {
-        await service.create(mockQuestion);
+        await service.create(mockAnswer);
       }).rejects.toThrow();
       expect(service.eventService.emit).not.toHaveBeenCalled();
     });
@@ -128,16 +153,16 @@ describe('QuestionService', () => {
   describe('When calling service.create with the id of a non existing subject', () => {
     test('It should throw an error and no events should be emitted', async () => {
       mockSubjectModel.exists.mockResolvedValueOnce(null);
-      expect(service.create(mockQuestion)).rejects.toThrow();
+      expect(service.create(mockAnswer)).rejects.toThrow();
       expect(service.eventService.emit).not.toHaveBeenCalled();
     });
   });
 
   describe('When calling service.findAllBySubject with an existing subject id', () => {
-    test('It should return an array of questions', async () => {
-      mockQuestionModel.find.mockReturnValueOnce([mockQuestion]);
+    test('It should return an array of Answers', async () => {
+      mockAnswerModel.find.mockReturnValueOnce([mockAnswer]);
       expect(await service.findAllBySubject(mockSubjectId)).toEqual([
-        mockQuestion,
+        mockAnswer,
       ]);
     });
   });
@@ -151,79 +176,78 @@ describe('QuestionService', () => {
     });
   });
 
-  describe('When calling service.findOne with an existing question id', () => {
-    test('It should return a question', async () => {
-      expect(await service.findOne('id')).toEqual(mockQuestion);
+  describe('When calling service.findOne with an existing Answer id', () => {
+    test('It should return a Answer', async () => {
+      expect(await service.findOne('id')).toEqual(mockAnswer);
     });
   });
 
-  describe('When calling service.findOne with a non existing question id', () => {
+  describe('When calling service.findOne with a non existing Answer id', () => {
     test('It should throw an error', async () => {
-      mockQuestionModel.findById.mockReturnValueOnce(null);
+      mockAnswerModel.findById.mockReturnValueOnce(null);
       expect(async () => {
         await service.findOne('id');
       }).rejects.toThrow();
     });
   });
 
-  describe('When calling service.update with an existing question id', () => {
-    test('It should return the updated question and emit an event', async () => {
-      const result = await service.update('id', {
-        ...mockQuestion,
-        title: 'updated',
+  fdescribe('When calling service.update with an existing Answer id', () => {
+    test('It should return the updated Answer and emit an event', async () => {
+      const answer = { ...mockAnswer, id: '62b9a9f34e0dfa462d7dcbaf' };
+      mockAnswerModel.findById.mockResolvedValueOnce(answer);
+      mockAnswerModel.findByIdAndUpdate.mockResolvedValueOnce({
+        toObject: jest.fn().mockReturnValue(answer),
       });
-      expect(result).toHaveProperty('question', {
-        ...mockQuestion,
-        id: '62b9a9f34e0dfa462d7dcbaf',
+      const result = await service.update('id', {
+        isCorrect: true,
+        time: 12,
+      });
+      expect(result).toHaveProperty('Answer', {
+        ...answer,
         subject: mockSubjectId,
-        title: 'updated',
+        average_answer_time: 12,
       });
       expect(service.eventService.emit).toHaveBeenCalledWith(
-        new UpdateQuestionEvent({
-          ...mockQuestion,
-          title: 'updated',
-          id: '62b9a9f34e0dfa462d7dcbaf',
-          subject: mockSubjectId,
-        } as unknown as Question),
+        ...(service.eventService.emit as jest.Mock).mock.calls[0],
       );
     });
   });
 
-  describe('When calling service.update with a non existing question id', () => {
+  describe('When calling service.update with a non existing Answer id', () => {
     test('It should throw an error and no events should be emitted', async () => {
-      mockQuestionModel.findByIdAndUpdate.mockReturnValueOnce(null);
+      mockAnswerModel.findByIdAndUpdate.mockReturnValueOnce(null);
       expect(async () => {
-        await service.update('id', { ...mockQuestion, title: 'updated' });
+        await service.update('id', { isCorrect: true, time: 12 });
       }).rejects.toThrow();
       expect(service.eventService.emit).not.toHaveBeenCalled();
     });
   });
 
-  describe('When calling service.delete with an existing question id', () => {
-    test('It should return the deleted question', async () => {
-      mockQuestionModel.findById.mockResolvedValueOnce({
+  describe('When calling service.delete with an existing Answer id', () => {
+    test('It should return the deleted Answer', async () => {
+      mockAnswerModel.findById.mockResolvedValueOnce({
         delete: jest.fn().mockResolvedValue({
           toObject: jest.fn().mockReturnValue({
-            ...mockQuestion,
+            ...mockAnswer,
             id: '62b9a9f34e0dfa462d7dcbaf',
           }),
         }),
       });
       expect(await service.remove('id')).toEqual({
-        ...mockQuestion,
+        ...mockAnswer,
         id: '62b9a9f34e0dfa462d7dcbaf',
       });
       expect(service.eventService.emit).toHaveBeenCalledWith(
-        new RemoveQuestionEvent({
+        new RemoveAnswerEvent({
           id: 'id',
         }),
       );
     });
   });
 
-  describe('When calling service.delete with a non existing question id', () => {
+  describe('When calling service.delete with a non existing Answer id', () => {
     test('It should throw an error and no events should be emitted', async () => {
-      mockQuestionModel.findById.mockResolvedValueOnce(null);
+      mockAnswerModel.findById.mockResolvedValueOnce(null);
       expect(async () => {
         await service.remove('id');
       }).rejects.toThrow();
