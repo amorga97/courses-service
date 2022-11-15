@@ -7,6 +7,7 @@ export interface QuestionRepository {
   findById(id: string): Promise<iQuestion>;
   findByIdAndUpdate(id: string, {}: Partial<iQuestion>): Promise<iQuestion>;
   findByIdAndDelete(id: string): Promise<iQuestion>;
+  findManyBySubjectId(subjectId: string): Promise<iQuestion[]>;
   deleteManyBySubjectId(subjectId: string): Promise<{ deletedCount: number }>;
 }
 

@@ -1,4 +1,5 @@
 import { FilterQuery } from 'mongoose';
+import { iQuestion } from 'src/question/domain/entities/question.model';
 import { iAnswer } from '../entities/answer.model';
 
 export interface AnswerRepository {
@@ -8,6 +9,11 @@ export interface AnswerRepository {
   findByIdAndUpdate(id: string, {}: Partial<iAnswer>): Promise<iAnswer>;
   findByIdAndDelete(id: string): Promise<iAnswer>;
   deleteManyBySubjectId(subjectId: string): Promise<{ deletedCount: number }>;
+  createManyFromQuestions(
+    questions: iQuestion[],
+    subjectId: string,
+    userId: string,
+  ): Promise<iAnswer[]>;
 }
 
 export const AnswerRepository = Symbol('AnswerRepository');

@@ -61,6 +61,24 @@ export class AnswerService {
     }
   }
 
+  async createAnswersBySubject(subjectId: string, userId: string) {
+    try {
+      if (!(await this.Subject.exists(subjectId))) {
+        throw new Error(
+          'The subject id provided is not associated to any existing subject',
+        );
+      }
+      const questions = await this.Question.findManyBySubjectId(subjectId);
+      return await this.Answer.createManyFromQuestions(
+        questions,
+        subjectId,
+        userId,
+      );
+    } catch (err) {
+      this.logger.error(err);
+    }
+  }
+
   async findAllBySubject(subjectId: string) {
     if (await this.Subject.exists(subjectId)) {
       return this.Answer.find({ subject: subjectId });

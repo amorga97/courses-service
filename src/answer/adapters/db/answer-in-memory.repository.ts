@@ -1,7 +1,8 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { FilterQuery, Model } from 'mongoose';
-import { iAnswer } from '../../domain/entities/answer.model';
+import { iQuestion } from 'src/question/domain/entities/question.model';
+import { Answer, iAnswer } from '../../domain/entities/answer.model';
 import { AnswerRepository } from '../../domain/ports/answer.repository';
 
 @Injectable()
@@ -18,6 +19,24 @@ export class AnswerInMemoryRepository implements AnswerRepository {
   async create(AnswerData: iAnswer) {
     const answer = await this.Answer.create(AnswerData);
     return answer.toObject();
+  }
+
+  async createManyFromQuestions(
+    questions: iQuestion[],
+    subjectId: string,
+    userId: string,
+  ) {
+    const answersToCreate = questions.map(
+      (question) =>
+        new Answer({
+          date: new Date().toString(),
+          question: question._id,
+          subject: subjectId,
+          user: userId,
+        }),
+    );
+    const answersInDb = await this.Answer.insertMany(answersToCreate);
+    return answersInDb.map((answer) => answer.toObject());
   }
 
   async findById(id: string) {

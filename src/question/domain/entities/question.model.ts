@@ -1,4 +1,4 @@
-import { Schema, SchemaTypes } from 'mongoose';
+import { Schema, SchemaTypes, Types } from 'mongoose';
 
 export const questionSchema = new Schema({
   id: {
@@ -44,6 +44,7 @@ export interface iOption {
 }
 
 export interface iQuestion {
+  _id?: Types.ObjectId;
   id: string;
   subject: string;
   title: string;

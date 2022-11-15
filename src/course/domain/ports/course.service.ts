@@ -5,6 +5,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { AnswerService } from 'src/answer/domain/ports/answer.service';
 import {
   CreateCourseEvent,
   RemoveCourseEvent,
@@ -21,6 +22,7 @@ export class CourseService {
   constructor(
     @Inject(CourseRepository) private readonly Course: CourseRepository,
     public readonly eventService: EventService,
+    private readonly answerService: AnswerService,
   ) {}
 
   async create({ subject, user }: CreateCourseDto) {
@@ -28,6 +30,7 @@ export class CourseService {
       const registeredCourse = await this.Course.create(
         new Course(user, subject, 4),
       );
+      await this.answerService.createAnswersBySubject(subject, user);
       this.eventService.emit(new CreateCourseEvent(registeredCourse));
       return registeredCourse;
     } catch (err) {
