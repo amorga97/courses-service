@@ -22,13 +22,8 @@ export class CourseController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string, @Query('questions') withQuestions: boolean) {
+  findOne(@Param('id') id: string, @Query('answers') withQuestions: boolean) {
     return this.courseService.findOne(id, withQuestions);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateCourseDto: UpdateCourseDto) {
-    return this.courseService.update(id, updateCourseDto);
   }
 
   @Delete(':id')

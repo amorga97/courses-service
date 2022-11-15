@@ -61,7 +61,11 @@ export class AnswerService {
     }
   }
 
-  async createAnswersBySubject(subjectId: string, userId: string) {
+  async createAnswersBySubject(
+    subjectId: string,
+    userId: string,
+    courseId: string,
+  ) {
     try {
       if (!(await this.Subject.exists(subjectId))) {
         throw new Error(
@@ -69,11 +73,12 @@ export class AnswerService {
         );
       }
       const questions = await this.Question.findManyBySubjectId(subjectId);
-      return await this.Answer.createManyFromQuestions(
+      return await this.Answer.createManyFromQuestions({
         questions,
         subjectId,
         userId,
-      );
+        courseId,
+      });
     } catch (err) {
       this.logger.error(err);
     }
@@ -106,6 +111,10 @@ export class AnswerService {
     if (deletedAnswer === null) throw new NotFoundException();
     this.eventService.emit(new RemoveAnswerEvent({ id }));
     return deletedAnswer;
+  }
+
+  async deleteManyByCourseId(courseId: string) {
+    return { deleted: await this.Answer.deleteManyByCourseId(courseId) };
   }
 
   private addAnswer(

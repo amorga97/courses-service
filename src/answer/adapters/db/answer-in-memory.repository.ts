@@ -21,17 +21,24 @@ export class AnswerInMemoryRepository implements AnswerRepository {
     return answer.toObject();
   }
 
-  async createManyFromQuestions(
-    questions: iQuestion[],
-    subjectId: string,
-    userId: string,
-  ) {
+  async createManyFromQuestions({
+    questions,
+    subjectId,
+    userId,
+    courseId,
+  }: {
+    questions: iQuestion[];
+    subjectId: string;
+    userId: string;
+    courseId: string;
+  }) {
     const answersToCreate = questions.map(
       (question) =>
         new Answer({
           date: new Date().toString(),
           question: question._id,
           subject: subjectId,
+          course: courseId,
           user: userId,
         }),
     );
@@ -58,5 +65,9 @@ export class AnswerInMemoryRepository implements AnswerRepository {
 
   async deleteManyBySubjectId(subjectId: string) {
     return await this.Answer.deleteMany({ subject: subjectId });
+  }
+
+  async deleteManyByCourseId(courseId: string) {
+    return await this.Answer.deleteMany({ course: courseId });
   }
 }

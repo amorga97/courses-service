@@ -9,11 +9,18 @@ export interface AnswerRepository {
   findByIdAndUpdate(id: string, {}: Partial<iAnswer>): Promise<iAnswer>;
   findByIdAndDelete(id: string): Promise<iAnswer>;
   deleteManyBySubjectId(subjectId: string): Promise<{ deletedCount: number }>;
-  createManyFromQuestions(
-    questions: iQuestion[],
-    subjectId: string,
-    userId: string,
-  ): Promise<iAnswer[]>;
+  deleteManyByCourseId(courseId: string): Promise<{ deletedCount: number }>;
+  createManyFromQuestions({
+    questions,
+    subjectId,
+    userId,
+    courseId,
+  }: {
+    questions: iQuestion[];
+    subjectId: string;
+    userId: string;
+    courseId: string;
+  }): Promise<iAnswer[]>;
 }
 
 export const AnswerRepository = Symbol('AnswerRepository');
