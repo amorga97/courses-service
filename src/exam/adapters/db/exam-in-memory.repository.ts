@@ -21,6 +21,14 @@ export class ExamInMemoryRepository implements ExamRepository {
     if (exam === null) return null;
     return exam.toObject();
   }
+
+  async findManyByCourseId(courseId: string) {
+    const exams = (await this.Exam.find({ course: courseId })).map(
+      (ex) => ex.toObject,
+    );
+    return exams as unknown as iExam[];
+  }
+
   async findByIdAndUpdate(id: string, updatedexamData: Partial<iExam>) {
     const exam = await this.Exam.findByIdAndUpdate(id, updatedexamData, {
       new: true,

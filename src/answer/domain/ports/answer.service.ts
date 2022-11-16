@@ -97,6 +97,10 @@ export class AnswerService {
     throw new NotFoundException();
   }
 
+  async findManyByCourseId(courseId: string) {
+    return (await this.Answer.find({ course: courseId })).map;
+  }
+
   async findOne(id: string) {
     const Answer = await this.Answer.findById(id);
     if (Answer === null) throw new NotFoundException();

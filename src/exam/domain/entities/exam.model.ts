@@ -6,8 +6,8 @@ export const questionSchema = new Schema(
     id: { type: String, required: true },
     title: { type: String, required: true },
     options: { type: [], required: true },
-    selected: { type: String, required: true },
-    time: { type: Number, required: true },
+    selected: { type: String, required: false, default: null },
+    time: { type: Number, required: true, default: null },
     subject: { type: String, required: true },
   },
   { _id: false },
@@ -54,7 +54,10 @@ export const examSchema = new Schema({
     virtuals: true,
   });
 
-export type questionForExam = Question & { selected: string; time: number };
+export type questionForExam = Question & {
+  selected: string | null;
+  time: number;
+};
 export interface iExam {
   id?: string;
   user: string;
