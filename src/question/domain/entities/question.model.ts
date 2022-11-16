@@ -1,5 +1,24 @@
 import { Schema, SchemaTypes, Types } from 'mongoose';
 
+const optionSchema = new Schema({
+  description: String,
+  isCorrect: Boolean,
+})
+  .set('toJSON', {
+    transform: (_, ret) => {
+      delete ret.__v;
+      delete ret._id;
+    },
+  })
+  .set('toObject', {
+    transform: (_, ret) => {
+      delete ret.__v;
+      delete ret._id;
+      return ret;
+    },
+    virtuals: true,
+  });
+
 export const questionSchema = new Schema({
   id: {
     type: String,
@@ -10,15 +29,7 @@ export const questionSchema = new Schema({
   subject: { type: SchemaTypes.ObjectId, ref: 'Subject', required: true },
   title: { type: SchemaTypes.String, required: true },
   options: {
-    type: [
-      new Schema(
-        {
-          description: String,
-          isCorrect: Boolean,
-        },
-        { _id: false },
-      ),
-    ],
+    type: [optionSchema],
     required: true,
     length: { min: 2 },
   },
