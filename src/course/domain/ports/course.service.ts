@@ -76,7 +76,7 @@ export class CourseService {
     this.eventService.emit(new RemoveCourseEvent({ id }));
     return {
       Course: removedCourse,
-      'deleted-questions': deleted,
+      'deleted-answers': deleted,
     };
   }
 }
