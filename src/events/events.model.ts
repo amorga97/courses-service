@@ -8,5 +8,5 @@ export interface EventData<T> {
 
 export interface EventInfo<T> {
   action: CourseEventActions | AnswerEventActions;
-  data: T | { id: string };
+  data: T | T[] | { id: string };
 }

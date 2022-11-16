@@ -8,7 +8,9 @@ import {
 import { EventService } from '../../../events/event-service.service';
 import {
   CreateAnswerEvent,
+  CreateManyAnswersEvent,
   RemoveAnswerEvent,
+  RemoveManyAnswersByCourseIdEvent,
   UpdateAnswerEvent,
 } from '../../../events/answer.events';
 import { SubjectRepository } from '../../../subject/domain/ports/subject.repository';
@@ -73,12 +75,14 @@ export class AnswerService {
         );
       }
       const questions = await this.Question.findManyBySubjectId(subjectId);
-      return await this.Answer.createManyFromQuestions({
+      const answers = await this.Answer.createManyFromQuestions({
         questions,
         subjectId,
         userId,
         courseId,
       });
+      this.eventService.emit(new CreateManyAnswersEvent(answers));
+      return answers;
     } catch (err) {
       this.logger.error(err);
     }
@@ -114,7 +118,11 @@ export class AnswerService {
   }
 
   async deleteManyByCourseId(courseId: string) {
-    return { deleted: await this.Answer.deleteManyByCourseId(courseId) };
+    const { deletedCount } = await this.Answer.deleteManyByCourseId(courseId);
+    this.eventService.emit(
+      new RemoveManyAnswersByCourseIdEvent({ id: courseId }),
+    );
+    return { deleted: deletedCount };
   }
 
   private addAnswer(

@@ -3,14 +3,12 @@ import {
   Get,
   Post,
   Body,
-  Patch,
   Param,
   Delete,
   Query,
 } from '@nestjs/common';
 import { CourseService } from '../../domain/ports/course.service';
 import { CreateCourseDto } from '../dto/create-course.dto';
-import { UpdateCourseDto } from '../dto/update-course.dto';
 
 @Controller('course')
 export class CourseController {
