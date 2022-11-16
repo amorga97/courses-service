@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Inject,
   Injectable,
   Logger,
@@ -85,6 +86,7 @@ export class AnswerService {
       return answers;
     } catch (err) {
       this.logger.error(err);
+      throw new BadRequestException();
     }
   }
 
