@@ -11,5 +11,9 @@ export class CreateAnswerDto {
   @IsNotEmpty()
   @IsString()
   @Length(24)
+  course: string;
+  @IsNotEmpty()
+  @IsString()
+  @Length(24)
   question: string;
 }

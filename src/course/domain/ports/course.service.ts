@@ -5,6 +5,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { AnswerService } from '../../../answer/domain/ports/answer.service';
 import {
   CreateCourseEvent,
   RemoveCourseEvent,
@@ -21,12 +22,22 @@ export class CourseService {
   constructor(
     @Inject(CourseRepository) private readonly Course: CourseRepository,
     public readonly eventService: EventService,
+    private readonly answerService: AnswerService,
   ) {}
 
   async create({ subject, user }: CreateCourseDto) {
     try {
-      const registeredCourse = await this.Course.create(
-        new Course(user, subject, 4),
+      let registeredCourse = await this.Course.create(
+        new Course(user, subject),
+      );
+      const answers = await this.answerService.createAnswersBySubject(
+        subject,
+        user,
+        registeredCourse.id,
+      );
+      registeredCourse = await this.Course.findByIdAndUpdate(
+        registeredCourse.id,
+        { progress: { answered: 0, total: answers.length } },
       );
       this.eventService.emit(new CreateCourseEvent(registeredCourse));
       return registeredCourse;
@@ -39,14 +50,14 @@ export class CourseService {
     }
   }
 
-  async findOne(id: string, withQuestions: boolean) {
-    const Course = await this.Course.findById(id);
-    if (Course === null) throw new NotFoundException();
-    // if (withQuestions) {
-    //   const questions = await this.Question.find({ Course: Course.id });
-    //   return { ...Course, questions };
-    // }
-    return Course;
+  async findOne(id: string, withAnswers: boolean) {
+    const course = await this.Course.findById(id);
+    if (course === null) throw new NotFoundException();
+    if (withAnswers) {
+      const answers = await this.answerService.findAllBySubject(course.subject);
+      return { course, answers };
+    }
+    return { course, answers: null };
   }
 
   async update(id: string, updateCourseDto: UpdateCourseDto) {
@@ -61,11 +72,11 @@ export class CourseService {
 
   async remove(id: string) {
     const removedCourse = await this.Course.findByIdAndDelete(id);
-    // const { deletedCount } = await this.Question.deleteManyByCourseId(id);
+    const { deleted } = await this.answerService.deleteManyByCourseId(id);
     this.eventService.emit(new RemoveCourseEvent({ id }));
     return {
       Course: removedCourse,
-      // 'deleted-questions': deletedCount,
+      'deleted-answers': deleted,
     };
   }
 }

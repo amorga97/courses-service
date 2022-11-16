@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Inject,
   Injectable,
   Logger,
@@ -8,7 +9,9 @@ import {
 import { EventService } from '../../../events/event-service.service';
 import {
   CreateAnswerEvent,
+  CreateManyAnswersEvent,
   RemoveAnswerEvent,
+  RemoveManyAnswersByCourseIdEvent,
   UpdateAnswerEvent,
 } from '../../../events/answer.events';
 import { SubjectRepository } from '../../../subject/domain/ports/subject.repository';
@@ -61,6 +64,32 @@ export class AnswerService {
     }
   }
 
+  async createAnswersBySubject(
+    subjectId: string,
+    userId: string,
+    courseId: string,
+  ) {
+    try {
+      if (!(await this.Subject.exists(subjectId))) {
+        throw new Error(
+          'The subject id provided is not associated to any existing subject',
+        );
+      }
+      const questions = await this.Question.findManyBySubjectId(subjectId);
+      const answers = await this.Answer.createManyFromQuestions({
+        questions,
+        subjectId,
+        userId,
+        courseId,
+      });
+      this.eventService.emit(new CreateManyAnswersEvent(answers));
+      return answers;
+    } catch (err) {
+      this.logger.error(err);
+      throw new BadRequestException();
+    }
+  }
+
   async findAllBySubject(subjectId: string) {
     if (await this.Subject.exists(subjectId)) {
       return this.Answer.find({ subject: subjectId });
@@ -88,6 +117,14 @@ export class AnswerService {
     if (deletedAnswer === null) throw new NotFoundException();
     this.eventService.emit(new RemoveAnswerEvent({ id }));
     return deletedAnswer;
+  }
+
+  async deleteManyByCourseId(courseId: string) {
+    const { deletedCount } = await this.Answer.deleteManyByCourseId(courseId);
+    this.eventService.emit(
+      new RemoveManyAnswersByCourseIdEvent({ id: courseId }),
+    );
+    return { deleted: deletedCount };
   }
 
   private addAnswer(

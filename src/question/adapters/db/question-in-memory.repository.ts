@@ -41,6 +41,10 @@ export class QuestionInMemoryRepository implements QuestionRepository {
     return (await deletedQuestion.delete()).toObject();
   }
 
+  async findManyBySubjectId(subjectId: string) {
+    return await this.Question.find({ subject: subjectId });
+  }
+
   async deleteManyBySubjectId(subjectId: string) {
     return await this.Question.deleteMany({ subject: subjectId });
   }

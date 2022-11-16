@@ -20,7 +20,7 @@ export const courseSchema = new Schema({
   },
   progress: {
     type: progressSchema,
-    required: true,
+    required: false,
   },
   success_rate: {
     type: Number,
@@ -59,11 +59,10 @@ export class Course implements iCourse {
   progress: { answered: number; total: number };
   success_rate?: number;
 
-  constructor(user: string, subject: string, total: number) {
+  constructor(user: string, subject: string) {
     {
       this.user = user;
       this.subject = subject;
-      this.progress = { answered: 0, total };
     }
   }
 }

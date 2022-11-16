@@ -27,6 +27,11 @@ export const answerSchema = new Schema({
     required: true,
     length: 24,
   },
+  course: {
+    type: String,
+    required: true,
+    length: 24,
+  },
   question: { type: SchemaTypes.ObjectId, ref: 'Question', required: true },
   average_answer_time: { type: Number, required: true },
   stats: {
@@ -56,6 +61,7 @@ export interface iAnswer {
   id?: string;
   user: string;
   subject: string;
+  course: string;
   question: Types.ObjectId;
   average_answer_time: number;
   stats: {
@@ -73,6 +79,7 @@ export class Answer implements iAnswer {
   id?: string;
   user: string;
   subject: string;
+  course: string;
   question: Types.ObjectId;
   average_answer_time: number;
   stats: { answers: number; correct: number; wrong: number };
@@ -81,16 +88,19 @@ export class Answer implements iAnswer {
   constructor({
     user,
     subject,
+    course,
     question,
     date,
   }: {
     user: string;
     subject: string;
+    course: string;
     question: Types.ObjectId;
     date: string;
   }) {
     this.user = user;
     this.subject = subject;
+    this.course = course;
     this.average_answer_time;
     this.question = question;
     this.average_answer_time = 0;

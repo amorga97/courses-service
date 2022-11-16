@@ -19,7 +19,9 @@ import {
 } from '../../../question/domain/entities/question.model';
 import {
   CreateAnswerEvent,
+  CreateManyAnswersEvent,
   RemoveAnswerEvent,
+  RemoveManyAnswersByCourseIdEvent,
 } from '../../../events/answer.events';
 
 describe('AnswerService', () => {
@@ -29,6 +31,7 @@ describe('AnswerService', () => {
     user: '62b9a9f34e0dfa462d7dcbaf',
     subject: '62b9a9f34e0dfa462d7dcbaf',
     question: '62b9a9f34e0dfa462d7dcbaf',
+    course: '62b9a9f34e0dfa462d7dcbaf',
     average_answer_time: 0,
     stats: {
       answers: 0,
@@ -62,6 +65,7 @@ describe('AnswerService', () => {
 
   const mockQuesionModel = {
     findOne: jest.fn().mockResolvedValue(mockQuestion),
+    find: jest.fn().mockResolvedValue([mockQuestion]),
   };
 
   const mockAnswerModel = {
@@ -70,6 +74,13 @@ describe('AnswerService', () => {
         .fn()
         .mockReturnValue({ ...mockAnswer, id: '62b9a9f34e0dfa462d7dcbaf' }),
     }),
+    insertMany: jest.fn().mockResolvedValue([
+      {
+        toObject: jest
+          .fn()
+          .mockReturnValue({ ...mockAnswer, id: '62b9a9f34e0dfa462d7dcbaf' }),
+      },
+    ]),
     find: jest.fn().mockReturnValue(mockAnswer),
     findById: jest.fn().mockReturnValue(mockAnswer),
     findByIdAndUpdate: jest.fn().mockReturnValue({
@@ -79,6 +90,7 @@ describe('AnswerService', () => {
       }),
     }),
     findByIdAndDelete: jest.fn().mockResolvedValue(mockAnswer),
+    deleteMany: jest.fn().mockResolvedValue({ deletedCount: 1 }),
   };
 
   let service: AnswerService;
@@ -154,6 +166,44 @@ describe('AnswerService', () => {
     test('It should throw an error and no events should be emitted', async () => {
       mockSubjectModel.exists.mockResolvedValueOnce(null);
       expect(service.create(mockAnswer)).rejects.toThrow();
+      expect(service.eventService.emit).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('When calling service.createAnswersBySubject with valid params', () => {
+    test('It should create a new array of Answers and emit an event', async () => {
+      const result = await service.createAnswersBySubject(
+        mockSubjectId,
+        'userId',
+        'courseId',
+      );
+      expect(result).toEqual([
+        {
+          ...mockAnswer,
+          id: '62b9a9f34e0dfa462d7dcbaf',
+        },
+      ]);
+      expect(service.eventService.emit).toHaveBeenCalledWith(
+        new CreateManyAnswersEvent([
+          {
+            ...mockAnswer,
+            id: '62b9a9f34e0dfa462d7dcbaf',
+          } as unknown as Answer,
+        ]),
+      );
+    });
+  });
+
+  describe('When calling service.createAnswersBySubject with inexistent subjectId', () => {
+    test('It should create a new array of Answers and emit an event', async () => {
+      mockQuesionModel.find.mockResolvedValueOnce(null);
+      expect(async () => {
+        await service.createAnswersBySubject(
+          mockSubjectId,
+          'userId',
+          'courseId',
+        );
+      }).rejects.toThrow();
       expect(service.eventService.emit).not.toHaveBeenCalled();
     });
   });
@@ -252,6 +302,19 @@ describe('AnswerService', () => {
         await service.remove('id');
       }).rejects.toThrow();
       expect(service.eventService.emit).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('When calling service.deleteManyByCourseId with an existing Course id', () => {
+    test('It should return the number deleted Answer', async () => {
+      expect(await service.deleteManyByCourseId('id')).toEqual({
+        deleted: 1,
+      });
+      expect(service.eventService.emit).toHaveBeenCalledWith(
+        new RemoveManyAnswersByCourseIdEvent({
+          id: 'id',
+        }),
+      );
     });
   });
 });

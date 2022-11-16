@@ -46,13 +46,6 @@ describe('CourseController', () => {
     });
   });
 
-  describe('When calling controller.update', () => {
-    test('Then service.update should be called', async () => {
-      await controller.update('', {});
-      expect(service.update).toHaveBeenCalled();
-    });
-  });
-
   describe('When calling controller.remove', () => {
     test('Then service.findOne should be called', async () => {
       await controller.remove('');

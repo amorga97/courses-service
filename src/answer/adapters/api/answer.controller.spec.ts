@@ -8,6 +8,7 @@ describe('AnswerController', () => {
     user: '',
     subject: '',
     question: '',
+    course: '',
     average_answer_time: 0,
     stats: {
       answers: 0,

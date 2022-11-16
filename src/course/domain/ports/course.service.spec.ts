@@ -14,6 +14,7 @@ import {
 } from '../../../events/course.events';
 import { iQuestion } from '../../../question/domain/entities/question.model';
 import { answerSchema } from '../../../answer/domain/entities/answer.model';
+import { AnswerService } from '../../../answer/domain/ports/answer.service';
 
 describe('CourseService', () => {
   let service: CourseService;
@@ -38,6 +39,23 @@ describe('CourseService', () => {
     options: [],
   };
 
+  const mockAnswer = {
+    user: '',
+    subject: '',
+    course: '',
+    question: '',
+    average_answer_time: 0,
+    stats: {
+      answers: 0,
+      correct: 0,
+      wrong: 0,
+    },
+    last_answer: {
+      date: '',
+      correct: false,
+    },
+  };
+
   const mockQueryResult = {
     toObject: jest.fn().mockReturnValue(mockCourseInDb),
   };
@@ -59,6 +77,12 @@ describe('CourseService', () => {
     deleteMany: jest.fn().mockResolvedValue({ deletedCount: 1 }),
   };
 
+  const mockAnswerService = {
+    createAnswersBySubject: jest.fn().mockResolvedValue([mockAnswer]),
+    findAllBySubject: jest.fn().mockResolvedValue([mockAnswer]),
+    deleteManyByCourseId: jest.fn().mockResolvedValue({ deleted: 1 }),
+  };
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -66,6 +90,7 @@ describe('CourseService', () => {
         { provide: CourseRepository, useClass: CourseInMemoryRepository },
         { provide: AnswerRepository, useClass: AnswerInMemoryRepository },
         { provide: EventService, useValue: { emit: jest.fn() } },
+        { provide: AnswerService, useValue: mockAnswerService },
       ],
       imports: [
         MongooseModule.forFeature([{ name: 'Course', schema: courseSchema }]),
@@ -83,6 +108,9 @@ describe('CourseService', () => {
 
   describe('When calling service.create with a new Courses info', () => {
     test('Then it should return the new Course saved to the DB and emit an event', async () => {
+      mockCourseModel.findByIdAndUpdate.mockResolvedValueOnce({
+        toObject: jest.fn().mockReturnValue(mockCourseInDb),
+      });
       const result = await service.create(mockCourse);
       expect(result).toEqual(mockCourseInDb);
       expect(service.eventService.emit).toHaveBeenCalledWith(
@@ -104,21 +132,22 @@ describe('CourseService', () => {
     });
   });
 
-  describe('When calling service.findOne with a valid Course id with questions', () => {
+  describe('When calling service.findOne with a valid Course id with answers', () => {
     test('Then it should return the Course from the db', async () => {
-      mockCourseModel.findById.mockResolvedValueOnce({
-        toObject: jest
-          .fn()
-          .mockReturnValue({ ...mockCourseInDb, questions: [mockQuestion] }),
-      });
       const result = await service.findOne('id', true);
-      expect(result).toEqual({ ...mockCourseInDb, questions: [mockQuestion] });
+      expect(result).toEqual({
+        course: { ...mockCourseInDb },
+        answers: [mockAnswer],
+      });
     });
   });
 
   describe('When calling service.findOne with a valid Course id without questions', () => {
     test('Then it should return the Course from the db', async () => {
-      expect(await service.findOne('id', false)).toEqual(mockCourseInDb);
+      expect(await service.findOne('id', false)).toEqual({
+        course: mockCourseInDb,
+        answers: null,
+      });
     });
   });
 
@@ -166,7 +195,7 @@ describe('CourseService', () => {
   describe('When calling service.remove with a valid Course id', () => {
     test('Then it should return the deleted Course and emit an event', async () => {
       const mockResponse = {
-        // 'deleted-questions': 1,
+        'deleted-answers': 1,
         Course: mockCourseInDb,
       };
       mockCourseModel.findById.mockResolvedValueOnce({
