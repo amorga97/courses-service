@@ -5,7 +5,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { AnswerService } from 'src/answer/domain/ports/answer.service';
+import { AnswerService } from '../../../answer/domain/ports/answer.service';
 import {
   CreateCourseEvent,
   RemoveCourseEvent,
