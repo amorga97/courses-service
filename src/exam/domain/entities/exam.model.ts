@@ -30,13 +30,19 @@ export const examSchema = new Schema({
   },
   questions: {
     type: Array<
-      [{ type: questionSchema }, { type: Types.ObjectId; ref: 'Answer' }]
+      [
+        {
+          question: { type: questionSchema };
+          answer: { type: Types.ObjectId; ref: 'Answer' };
+        },
+      ]
     >,
   },
 })
   .set('toJSON', {
     transform: (_, ret) => {
       delete ret.__v;
+      delete ret._id;
     },
   })
   .set('toObject', {
@@ -54,7 +60,7 @@ export interface iExam {
   user: string;
   subject: string;
   course: string;
-  questions: Array<[questionForExam, string]>;
+  questions: Array<questionForExam | string[]>;
 }
 
 export class Exam implements iExam {
@@ -62,7 +68,7 @@ export class Exam implements iExam {
   user: string;
   subject: string;
   course: string;
-  questions: Array<[questionForExam, string]>;
+  questions: Array<questionForExam | string[]>;
 
   constructor({ user, subject, course, questions }: Omit<iExam, 'id'>) {
     {
