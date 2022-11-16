@@ -1,14 +1,19 @@
 import { Schema } from 'mongoose';
+import { Question } from 'src/question/domain/entities/question.model';
 
-const progressSchema = new Schema(
+export const questionSchema = new Schema(
   {
-    answered: Number,
-    total: Number,
+    id: { type: String, required: true },
+    title: { type: String, required: true },
+    options: { type: [], required: true },
+    selected: { type: String, required: true },
+    time: { type: Number, required: true },
+    subject: { type: String, required: true },
   },
   { _id: false },
 );
 
-export const courseSchema = new Schema({
+export const examSchema = new Schema({
   user: {
     type: String,
     required: true,
@@ -18,13 +23,15 @@ export const courseSchema = new Schema({
     required: true,
     length: 24,
   },
-  progress: {
-    type: progressSchema,
-    required: false,
+  course: {
+    type: String,
+    required: true,
+    length: 24,
   },
-  success_rate: {
-    type: Number,
-    required: false,
+  questions: {
+    type: Array<
+      [{ type: questionSchema }, { type: Types.ObjectId; ref: 'Answer' }]
+    >,
   },
 })
   .set('toJSON', {
@@ -41,28 +48,28 @@ export const courseSchema = new Schema({
     virtuals: true,
   });
 
-export interface iCourse {
+export type questionForExam = Question & { selected: string; time: number };
+export interface iExam {
   id?: string;
   user: string;
   subject: string;
-  progress: {
-    answered: number;
-    total: number;
-  };
-  success_rate?: number;
+  course: string;
+  questions: Array<[questionForExam, string]>;
 }
 
-export class Course implements iCourse {
+export class Exam implements iExam {
   id?: string;
   user: string;
   subject: string;
-  progress: { answered: number; total: number };
-  success_rate?: number;
+  course: string;
+  questions: Array<[questionForExam, string]>;
 
-  constructor(user: string, subject: string) {
+  constructor({ user, subject, course, questions }: Omit<iExam, 'id'>) {
     {
       this.user = user;
       this.subject = subject;
+      this.course = course;
+      this.questions = questions;
     }
   }
 }
