@@ -1,9 +1,14 @@
-import { BadRequestException, Inject, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { AnswerService } from 'src/answer/domain/ports/answer.service';
 import { CourseService } from 'src/course/domain/ports/course.service';
 import { EventService } from 'src/events/event-service.service';
 import { QuestionService } from 'src/question/domain/ports/question.service';
-import { Exam } from '../entities/exam.model';
+import { Exam, iExam, questionForExam } from '../entities/exam.model';
 import { ExamRepository } from './exam.repository';
 
 @Injectable()
@@ -37,5 +42,37 @@ export class ExamService {
 
   async findByCourseId(courseId: string) {
     return await this.Exam.findManyByCourseId(courseId);
+  }
+
+  async update(
+    examId: string,
+    questions: [Partial<questionForExam>, string][],
+  ) {
+    return await this.Exam.findByIdAndUpdate(examId, { questions });
+  }
+
+  async submit(id: string) {
+    const exam = await this.Exam.findById(id);
+    if (exam === null) throw new NotFoundException('Exam not found');
+    const { questions, course } = exam;
+    const results: iExam['results'] = {
+      right_answers: 0,
+      wrong_answers: 0,
+      time: 0,
+    };
+    for (const question in questions) {
+      const [{ options, selected, time }, answerId] = question as unknown as [
+        questionForExam,
+        string,
+      ];
+      let isCorrect = options.filter((option) => option._id === selected)[0]
+        .isCorrect;
+      if (typeof isCorrect !== 'boolean') isCorrect = false;
+      await this.answerService.update(answerId, { isCorrect, time });
+      isCorrect ? results.right_answers++ : results.wrong_answers++;
+      results.time += time;
+    }
+    this.courseService.addExamResult(course, results);
+    return await this.Exam.findByIdAndUpdate(id, { results });
   }
 }

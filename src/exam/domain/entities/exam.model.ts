@@ -13,6 +13,15 @@ export const questionSchema = new Schema(
   { _id: false },
 );
 
+export const resultsSchema = new Schema(
+  {
+    right_answers: { type: Number, required: true },
+    wrong_anserts: { type: Number, required: true },
+    time: { type: Number, required: true },
+  },
+  { _id: false },
+);
+
 export const examSchema = new Schema({
   user: {
     type: String,
@@ -37,6 +46,10 @@ export const examSchema = new Schema({
         },
       ]
     >,
+  },
+  results: {
+    type: resultsSchema,
+    required: false,
   },
 })
   .set('toJSON', {
@@ -63,7 +76,16 @@ export interface iExam {
   user: string;
   subject: string;
   course: string;
-  questions: Array<questionForExam | string[]>;
+  questions: Array<(questionForExam | string)[]>;
+  results?: {
+    right_answers: number;
+    wrong_answers: number;
+    time: number;
+  };
+}
+
+export interface iExamUpdateData {
+  questions: Array<(Partial<questionForExam> | string)[]>;
 }
 
 export class Exam implements iExam {
@@ -71,7 +93,7 @@ export class Exam implements iExam {
   user: string;
   subject: string;
   course: string;
-  questions: Array<questionForExam | string[]>;
+  questions: Array<(questionForExam | string)[]>;
 
   constructor({ user, subject, course, questions }: Omit<iExam, 'id'>) {
     {

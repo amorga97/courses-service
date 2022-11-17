@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { iCourse } from '../../domain/entities/course.model';
+import { iCourse, iExamResult } from '../../domain/entities/course.model';
 import { CourseRepository } from '../../domain/ports/course.repository';
 
 @Injectable()
@@ -36,5 +36,17 @@ export class CourseInMemoryRepository implements CourseRepository {
 
   async exists(id: string) {
     return (await this.Course.exists({ id })) ? true : false;
+  }
+
+  async pushNewExamResult(id: string, result: iExamResult) {
+    return (
+      await this.Course.findByIdAndUpdate(
+        id,
+        {
+          $push: { exams_results: result },
+        },
+        { new: true },
+      )
+    ).toObject();
   }
 }

@@ -1,14 +1,7 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Patch,
-  Param,
-  Delete,
-} from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param } from '@nestjs/common';
 import { ExamService } from 'src/exam/domain/ports/exam.service';
 import { CreateExamDto } from '../dto/create-exam.dto';
+import { UpdateExamDto } from '../dto/update-exam.dto';
 
 @Controller('exam')
 export class ExamController {
@@ -24,17 +17,15 @@ export class ExamController {
     return this.examService.findByCourseId(courseId);
   }
 
-  // TODO: UPDATE
-  // @Patch(':id')
-  // update(@Param('id') id: string, @Body() updateExamDto: UpdateExamDto) {
-  //   return this.examService.update(+id, updateExamDto);
-  // }
+  @Patch(':id')
+  update(@Param('id') id: string, @Body() { questions }: UpdateExamDto) {
+    return this.examService.update(id, questions);
+  }
 
-  // TODO: SUBMIT
+  @Post(':id')
+  submit(@Param('id') id: string) {
+    this.examService.submit(id);
+  }
 
   // TODO: DELETE
-  // @Delete(':id')
-  // remove(@Param('id') id: string) {
-  //   return this.examService.remove(+id);
-  // }
 }

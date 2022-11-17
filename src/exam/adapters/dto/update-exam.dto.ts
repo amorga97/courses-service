@@ -1,27 +1,35 @@
 import { Type } from 'class-transformer';
 import {
+  IsArray,
+  IsBoolean,
   IsNotEmpty,
   IsNumber,
   IsOptional,
+  IsString,
   ValidateNested,
 } from 'class-validator';
-
+import { questionForExam } from 'src/exam/domain/entities/exam.model';
 export class UpdateExamDto {
   @IsOptional()
   @IsNotEmpty()
   @ValidateNested({ each: true })
-  @Type(() => UpdateProgressDto)
-  progress?: { answered: number; total: number };
-  @IsOptional()
-  @IsNumber()
-  success_rate?: number;
+  questions: [QuestionDto, string][];
 }
 
-export class UpdateProgressDto {
-  @IsOptional()
+export class OptionDto {
+  @IsNotEmpty()
+  @IsString()
+  description: string;
+  @IsBoolean()
+  isCorrect: boolean;
+}
+export class QuestionDto implements Partial<questionForExam> {
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => OptionDto)
+  options: [];
+  @IsString()
+  selected: string;
   @IsNumber()
-  answered: number;
-  @IsOptional()
-  @IsNumber()
-  total: number;
+  time: number;
 }
