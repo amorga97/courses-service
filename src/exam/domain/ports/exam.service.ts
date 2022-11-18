@@ -1,5 +1,5 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
-import { Helpers } from 'src/exam/helpers.service';
+import { Helpers } from '../../../exam/helpers.service';
 import { AnswerService } from '../../../answer/domain/ports/answer.service';
 import { CourseService } from '../../../course/domain/ports/course.service';
 import { EventService } from '../../../events/event-service.service';

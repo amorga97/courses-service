@@ -27,7 +27,7 @@ describe('ExamController', () => {
 
   describe('When calling controller.create', () => {
     test('Then it should call examService.create', async () => {
-      controller.create({ user: 'user', subject: 'subject', course: 'course' });
+      controller.create({ user: 'user', course: 'course' }, '10');
       expect(mockExamService.create).toHaveBeenCalled();
     });
   });
