@@ -67,7 +67,6 @@ export class ExamService {
         questionForExam,
         string,
       ];
-      console.log(question);
       let isCorrect = options.filter((option) => option._id === selected)[0]
         .isCorrect;
       if (typeof isCorrect !== 'boolean') isCorrect = false;
