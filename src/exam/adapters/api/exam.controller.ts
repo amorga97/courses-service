@@ -8,8 +8,11 @@ export class ExamController {
   constructor(private readonly examService: ExamService) {}
 
   @Post()
-  create(@Body() { user, subject, course }: CreateExamDto) {
-    return this.examService.create(user, subject, course);
+  create(
+    @Body() { user, course }: CreateExamDto,
+    @Param('questions') amount: string,
+  ) {
+    return this.examService.create(user, course, +amount);
   }
 
   @Get(':courseId')

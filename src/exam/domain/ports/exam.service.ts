@@ -1,4 +1,5 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { Helpers } from 'src/exam/helpers.service';
 import { AnswerService } from '../../../answer/domain/ports/answer.service';
 import { CourseService } from '../../../course/domain/ports/course.service';
 import { EventService } from '../../../events/event-service.service';
@@ -12,19 +13,18 @@ export class ExamService {
     public readonly eventService: EventService,
     private readonly answerService: AnswerService,
     private readonly courseService: CourseService,
+    private readonly helpers: Helpers,
   ) {}
 
-  async create(userId: string, subjectId: string, courseId: string) {
+  async create(userId: string, courseId: string, amount: number) {
     const answers = await this.answerService.findManyByCourseId(courseId);
-    console.log(answers[0]);
-
-    //TODO Definir y programar comportamiento de la creación de preguntas
+    const selectedAnswers = this.helpers.selectAnswersForExam(answers, amount);
 
     const newExam = new Exam({
       user: userId,
-      subject: subjectId,
+      subject: answers[0].subject,
       course: courseId,
-      questions: answers.map(({ question, id }) => [
+      questions: selectedAnswers.map(({ question, id }) => [
         { ...question, selected: '', time: 0 },
         id,
       ]),
