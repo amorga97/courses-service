@@ -24,7 +24,7 @@ describe('ExamService', () => {
 
   const mockExamQuestionTuple: [Partial<questionForExam>, string] = [
     {
-      options: [{ description: 'title', isCorrect: true, _id: mockId }],
+      options: [{ description: 'title', isCorrect: true, id: mockId }],
       selected: mockId,
       time: 20,
     },
