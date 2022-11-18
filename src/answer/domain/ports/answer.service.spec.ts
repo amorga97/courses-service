@@ -210,7 +210,13 @@ describe('AnswerService', () => {
 
   describe('When calling service.findAllBySubject with an existing subject id', () => {
     test('It should return an array of Answers', async () => {
-      mockAnswerModel.find.mockReturnValueOnce([mockAnswer]);
+      mockAnswerModel.find.mockReturnValueOnce({
+        populate: jest.fn().mockResolvedValue([
+          {
+            toObject: jest.fn().mockReturnValue(mockAnswer),
+          },
+        ]),
+      });
       expect(await service.findAllBySubject(mockSubjectId)).toEqual([
         mockAnswer,
       ]);

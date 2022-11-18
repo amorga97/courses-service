@@ -14,7 +14,7 @@ import {
 import { EventService } from '../../../events/event-service.service';
 import { CreateCourseDto } from '../../adapters/dto/create-course.dto';
 import { UpdateCourseDto } from '../../adapters/dto/update-course.dto';
-import { Course } from '../entities/course.model';
+import { Course, iExamResult } from '../entities/course.model';
 import { CourseRepository } from './course.repository';
 
 @Injectable()
@@ -66,6 +66,12 @@ export class CourseService {
       updateCourseDto,
     );
     if (updatedCourse === null) throw new NotFoundException('Course not found');
+    this.eventService.emit(new UpdateCourseEvent(updatedCourse));
+    return updatedCourse;
+  }
+
+  async addExamResult(id: string, result: iExamResult) {
+    const updatedCourse = await this.Course.pushNewExamResult(id, result);
     this.eventService.emit(new UpdateCourseEvent(updatedCourse));
     return updatedCourse;
   }

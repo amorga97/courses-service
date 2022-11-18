@@ -1,4 +1,5 @@
 import { Schema, SchemaTypes, Types } from 'mongoose';
+import { iQuestion } from 'src/question/domain/entities/question.model';
 
 const statsSchema = new Schema(
   {
@@ -74,6 +75,8 @@ export interface iAnswer {
     correct: boolean;
   };
 }
+
+export type populatedAnswer = Answer & { question: iQuestion };
 
 export class Answer implements iAnswer {
   id?: string;

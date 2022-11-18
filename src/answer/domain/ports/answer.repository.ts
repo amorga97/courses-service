@@ -1,10 +1,10 @@
 import { FilterQuery } from 'mongoose';
 import { iQuestion } from 'src/question/domain/entities/question.model';
-import { iAnswer } from '../entities/answer.model';
+import { iAnswer, populatedAnswer } from '../entities/answer.model';
 
 export interface AnswerRepository {
   create({}: iAnswer): Promise<iAnswer>;
-  find({}: FilterQuery<iAnswer>): Promise<iAnswer[]>;
+  find({}: FilterQuery<iAnswer>): Promise<populatedAnswer[]>;
   findById(id: string): Promise<iAnswer>;
   findByIdAndUpdate(id: string, {}: Partial<iAnswer>): Promise<iAnswer>;
   findByIdAndDelete(id: string): Promise<iAnswer>;

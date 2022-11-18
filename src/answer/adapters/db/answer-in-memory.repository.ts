@@ -2,7 +2,11 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { FilterQuery, Model } from 'mongoose';
 import { iQuestion } from 'src/question/domain/entities/question.model';
-import { Answer, iAnswer } from '../../domain/entities/answer.model';
+import {
+  Answer,
+  iAnswer,
+  populatedAnswer,
+} from '../../domain/entities/answer.model';
 import { AnswerRepository } from '../../domain/ports/answer.repository';
 
 @Injectable()
@@ -13,7 +17,13 @@ export class AnswerInMemoryRepository implements AnswerRepository {
   ) {}
 
   async find(searchObject: FilterQuery<iAnswer>) {
-    return await this.Answer.find(searchObject);
+    const answers = (
+      await this.Answer.find(searchObject).populate('question', {
+        __v: 0,
+      })
+    ).map((answer) => answer.toObject()) as populatedAnswer[];
+    console.log(answers);
+    return answers;
   }
 
   async create(AnswerData: iAnswer) {

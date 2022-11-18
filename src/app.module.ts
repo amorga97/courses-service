@@ -9,6 +9,7 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
 import { QuestionModule } from './question/question.module';
 import { CourseModule } from './course/course.module';
 import { AnswerModule } from './answer/answer.module';
+import { ExamModule } from './exam/exam.module';
 
 @Module({
   imports: [
@@ -44,6 +45,7 @@ import { AnswerModule } from './answer/answer.module';
     QuestionModule,
     CourseModule,
     AnswerModule,
+    ExamModule,
   ],
   controllers: [AppController],
   providers: [AppService],
