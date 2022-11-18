@@ -28,6 +28,13 @@ describe('CourseService', () => {
       answered: 0,
       total: 0,
     },
+    exams_results: [
+      {
+        right_answers: 0,
+        wrong_answers: 0,
+        time: 0,
+      },
+    ],
   };
 
   const mockCourseInDb = { ...mockCourse, id: mockId };

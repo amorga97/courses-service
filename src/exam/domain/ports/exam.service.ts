@@ -27,6 +27,8 @@ export class ExamService {
     if (questions.length !== answers.length)
       throw new BadRequestException('Subject Id and Course Id do not match.');
 
+    //TODO Definir y programar comportamiento de la creación de preguntas
+
     const newExam = new Exam({
       user: userId,
       subject: subjectId,
