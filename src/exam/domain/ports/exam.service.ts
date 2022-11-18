@@ -4,10 +4,10 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { AnswerService } from 'src/answer/domain/ports/answer.service';
-import { CourseService } from 'src/course/domain/ports/course.service';
-import { EventService } from 'src/events/event-service.service';
-import { QuestionService } from 'src/question/domain/ports/question.service';
+import { AnswerService } from '../../../answer/domain/ports/answer.service';
+import { CourseService } from '../../../course/domain/ports/course.service';
+import { EventService } from '../../../events/event-service.service';
+import { QuestionService } from '../../../question/domain/ports/question.service';
 import { Exam, iExam, questionForExam } from '../entities/exam.model';
 import { ExamRepository } from './exam.repository';
 
@@ -62,11 +62,12 @@ export class ExamService {
       wrong_answers: 0,
       time: 0,
     };
-    for (const question in questions) {
+    for (const question of questions) {
       const [{ options, selected, time }, answerId] = question as unknown as [
         questionForExam,
         string,
       ];
+      console.log(question);
       let isCorrect = options.filter((option) => option._id === selected)[0]
         .isCorrect;
       if (typeof isCorrect !== 'boolean') isCorrect = false;
@@ -74,7 +75,7 @@ export class ExamService {
       isCorrect ? results.right_answers++ : results.wrong_answers++;
       results.time += time;
     }
-    this.courseService.addExamResult(course, results);
+    await this.courseService.addExamResult(course, results);
     return await this.Exam.findByIdAndUpdate(id, { results });
   }
 }
