@@ -5,6 +5,7 @@ import { CourseService } from '../../../course/domain/ports/course.service';
 import { EventService } from '../../../events/event-service.service';
 import { Exam, iExam, questionForExam } from '../entities/exam.model';
 import { ExamRepository } from './exam.repository';
+import { formatISO } from 'date-fns';
 
 @Injectable()
 export class ExamService {
@@ -51,6 +52,7 @@ export class ExamService {
     const results: iExam['results'] = {
       right_answers: 0,
       wrong_answers: 0,
+      date: formatISO(new Date()),
       time: 0,
     };
     for (const question of questions) {

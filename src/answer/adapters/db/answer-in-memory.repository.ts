@@ -8,6 +8,7 @@ import {
   populatedAnswer,
 } from '../../domain/entities/answer.model';
 import { AnswerRepository } from '../../domain/ports/answer.repository';
+import { formatISO } from 'date-fns';
 
 @Injectable()
 export class AnswerInMemoryRepository implements AnswerRepository {
@@ -45,7 +46,7 @@ export class AnswerInMemoryRepository implements AnswerRepository {
     const answersToCreate = questions.map(
       (question) =>
         new Answer({
-          date: new Date().toString(),
+          date: formatISO(new Date()),
           question: question._id,
           subject: subjectId,
           course: courseId,

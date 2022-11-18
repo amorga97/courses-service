@@ -21,6 +21,7 @@ import { AnswerRepository } from './answer.repository';
 import { Answer, iAnswer } from '../entities/answer.model';
 import { Types } from 'mongoose';
 import { QuestionRepository } from '../../../question/domain/ports/question.repository';
+import { formatISO } from 'date-fns';
 
 @Injectable()
 export class AnswerService {
@@ -47,7 +48,7 @@ export class AnswerService {
         new Answer({
           ...createAnswerDto,
           question: new Types.ObjectId(question.id),
-          date: new Date().toUTCString(),
+          date: formatISO(new Date()),
         }),
       );
       this.eventService.emit(new CreateAnswerEvent(answer));
@@ -109,7 +110,7 @@ export class AnswerService {
 
   async update(id: string, { isCorrect, time }: UpdateAnswerDto) {
     const answer = await this.Answer.findById(id);
-    this.addAnswer(answer, isCorrect, time, new Date().toUTCString());
+    this.addAnswer(answer, isCorrect, time, formatISO(new Date()));
     const updatedAnswer = await this.Answer.findByIdAndUpdate(id, answer);
     this.eventService.emit(new UpdateAnswerEvent(updatedAnswer));
     if (updatedAnswer === null) throw new NotFoundException();

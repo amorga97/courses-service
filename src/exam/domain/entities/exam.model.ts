@@ -18,6 +18,7 @@ export const resultsSchema = new Schema(
     right_answers: { type: Number, required: true },
     wrong_anserts: { type: Number, required: true },
     time: { type: Number, required: true },
+    date: { type: String, required: true },
   },
   { _id: false },
 );
@@ -81,6 +82,7 @@ export interface iExam {
     right_answers: number;
     wrong_answers: number;
     time: number;
+    date: string;
   };
 }
 
