@@ -23,7 +23,6 @@ export class AnswerInMemoryRepository implements AnswerRepository {
         __v: 0,
       })
     ).map((answer) => answer.toObject()) as populatedAnswer[];
-    console.log(answers);
     return answers;
   }
 

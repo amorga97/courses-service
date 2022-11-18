@@ -69,7 +69,6 @@ export class ExamService {
     }
     await this.courseService.addExamResult(course, results);
     const updatedExam = await this.Exam.findByIdAndUpdate(id, { results });
-    console.log(updatedExam);
     return updatedExam;
   }
 }

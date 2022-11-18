@@ -12,7 +12,7 @@ export class ExamController {
     @Body() { user, course }: CreateExamDto,
     @Param('questions') amount: string,
   ) {
-    return this.examService.create(user, course, +amount);
+    return this.examService.create(user, course, amount ? +amount : 10);
   }
 
   @Get(':courseId')

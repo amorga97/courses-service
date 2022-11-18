@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { populatedAnswer } from 'src/answer/domain/entities/answer.model';
+import { isBefore, isAfter } from 'date-fns';
 
 @Injectable()
 export class Helpers {
@@ -9,13 +10,14 @@ export class Helpers {
       this.sortAnswers([...answers], randomAmount);
 
     if (newAnswers.length && wrongAnswers.length && correctAnswers.length) {
-      return this.allHaveAnswers({
+      const answers = this.allHaveAnswers({
         amount,
         correctAnswers,
         newAnswers,
         randomAnswers,
         wrongAnswers,
       });
+      return answers;
     }
 
     switch (newAnswers.length) {
@@ -93,6 +95,20 @@ export class Helpers {
         ? correctAnswers.push(answer)
         : wrongAnswers.push(answer);
       return;
+    });
+
+    correctAnswers.sort((a: populatedAnswer, z: populatedAnswer) => {
+      return +isBefore(
+        new Date(a.last_answer.date),
+        new Date(z.last_answer.date),
+      );
+    });
+
+    wrongAnswers.sort((a: populatedAnswer, z: populatedAnswer) => {
+      return +isAfter(
+        new Date(a.last_answer.date),
+        new Date(z.last_answer.date),
+      );
     });
 
     return { correctAnswers, wrongAnswers, newAnswers, randomAnswers };
@@ -180,6 +196,13 @@ export class Helpers {
             ),
           ];
     }
+
+    return [
+      ...randomAnswers,
+      ...correctAnswers.slice(0, correctAnswerAmount - 1),
+      ...wrongAnswers.slice(0, wrongAnswerAmount - 1),
+      ...newAnswers.slice(0, newAnswerAmount - 1),
+    ];
   }
 
   private noNewAnswers({
