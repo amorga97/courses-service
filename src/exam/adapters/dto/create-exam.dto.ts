@@ -7,7 +7,4 @@ export class CreateExamDto {
   @IsString()
   @Length(24)
   course: string;
-  @IsString()
-  @Length(24)
-  subject: string;
 }

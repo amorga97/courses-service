@@ -1,9 +1,11 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { Helpers } from '../../../exam/helpers.service';
 import { AnswerService } from '../../../answer/domain/ports/answer.service';
 import { CourseService } from '../../../course/domain/ports/course.service';
 import { EventService } from '../../../events/event-service.service';
 import { Exam, iExam, questionForExam } from '../entities/exam.model';
 import { ExamRepository } from './exam.repository';
+import { formatISO } from 'date-fns';
 
 @Injectable()
 export class ExamService {
@@ -12,19 +14,18 @@ export class ExamService {
     public readonly eventService: EventService,
     private readonly answerService: AnswerService,
     private readonly courseService: CourseService,
+    private readonly helpers: Helpers,
   ) {}
 
-  async create(userId: string, subjectId: string, courseId: string) {
+  async create(userId: string, courseId: string, amount: number) {
     const answers = await this.answerService.findManyByCourseId(courseId);
-    console.log(answers[0]);
-
-    //TODO Definir y programar comportamiento de la creación de preguntas
+    const selectedAnswers = this.helpers.selectAnswersForExam(answers, amount);
 
     const newExam = new Exam({
       user: userId,
-      subject: subjectId,
+      subject: answers[0].subject,
       course: courseId,
-      questions: answers.map(({ question, id }) => [
+      questions: selectedAnswers.map(({ question, id }) => [
         { ...question, selected: '', time: 0 },
         id,
       ]),
@@ -51,6 +52,7 @@ export class ExamService {
     const results: iExam['results'] = {
       right_answers: 0,
       wrong_answers: 0,
+      date: formatISO(new Date()),
       time: 0,
     };
     for (const question of questions) {
@@ -67,7 +69,6 @@ export class ExamService {
     }
     await this.courseService.addExamResult(course, results);
     const updatedExam = await this.Exam.findByIdAndUpdate(id, { results });
-    console.log(updatedExam);
     return updatedExam;
   }
 }

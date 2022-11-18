@@ -21,6 +21,7 @@ import { ExamInMemoryRepository } from './adapters/db/exam-in-memory.repository'
 import { examSchema, questionSchema } from './domain/entities/exam.model';
 import { ExamRepository } from './domain/ports/exam.repository';
 import { ExamService } from './domain/ports/exam.service';
+import { Helpers } from './helpers.service';
 
 @Module({
   imports: [
@@ -52,6 +53,7 @@ import { ExamService } from './domain/ports/exam.service';
     QuestionService,
     AnswerService,
     CourseService,
+    Helpers,
     { provide: ExamRepository, useClass: ExamInMemoryRepository },
     { provide: QuestionRepository, useClass: QuestionInMemoryRepository },
     { provide: CourseRepository, useClass: CourseInMemoryRepository },

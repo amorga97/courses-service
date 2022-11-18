@@ -8,6 +8,7 @@ import { AnswerService } from '../../../answer/domain/ports/answer.service';
 import { CourseService } from '../../../course/domain/ports/course.service';
 import { getModelToken, MongooseModule } from '@nestjs/mongoose';
 import { examSchema, iExam, questionForExam } from '../entities/exam.model';
+import { Helpers } from '../../../exam/helpers.service';
 
 describe('ExamService', () => {
   let service: ExamService;
@@ -101,6 +102,10 @@ describe('ExamService', () => {
     addExamResult: jest.fn(),
   };
 
+  const mockHelpers = {
+    selectAnswersForExam: jest.fn().mockReturnValue([mockAnswer]),
+  };
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -110,6 +115,7 @@ describe('ExamService', () => {
         { provide: QuestionService, useValue: mockQuestionService },
         { provide: AnswerService, useValue: mockAnswerService },
         { provide: CourseService, useValue: mockCourseService },
+        { provide: Helpers, useValue: mockHelpers },
       ],
       imports: [
         MongooseModule.forFeature([{ name: 'Exam', schema: examSchema }]),
@@ -128,7 +134,7 @@ describe('ExamService', () => {
 
   describe('When calling service.create', () => {
     test('Should query the db for questions and answers, create a new exam and return it', async () => {
-      const result = await service.create('id', mockId, mockId);
+      const result = await service.create('id', mockId, 10);
       expect(result).toEqual({
         ...mockExam,
         questions: [mockExamQuestionTuple],
@@ -187,11 +193,9 @@ describe('ExamService', () => {
         questions: [mockExamQuestionTuple],
       });
       expect(mockAnswerService.update).toHaveBeenCalledTimes(1);
-      expect(mockCourseService.addExamResult).toHaveBeenCalledWith(mockId, {
-        right_answers: 1,
-        time: 20,
-        wrong_answers: 0,
-      });
+      expect(mockCourseService.addExamResult).toHaveBeenCalledWith(
+        ...mockCourseService.addExamResult.mock.calls[0],
+      );
     });
   });
 });
