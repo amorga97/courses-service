@@ -1,13 +1,7 @@
-import {
-  BadRequestException,
-  Inject,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { AnswerService } from '../../../answer/domain/ports/answer.service';
 import { CourseService } from '../../../course/domain/ports/course.service';
 import { EventService } from '../../../events/event-service.service';
-import { QuestionService } from '../../../question/domain/ports/question.service';
 import { Exam, iExam, questionForExam } from '../entities/exam.model';
 import { ExamRepository } from './exam.repository';
 
@@ -16,16 +10,13 @@ export class ExamService {
   constructor(
     @Inject(ExamRepository) private readonly Exam: ExamRepository,
     public readonly eventService: EventService,
-    private readonly questionService: QuestionService,
     private readonly answerService: AnswerService,
     private readonly courseService: CourseService,
   ) {}
 
   async create(userId: string, subjectId: string, courseId: string) {
-    const questions = await this.questionService.findAllBySubject(subjectId);
     const answers = await this.answerService.findManyByCourseId(courseId);
-    if (questions.length !== answers.length)
-      throw new BadRequestException('Subject Id and Course Id do not match.');
+    console.log(answers[0]);
 
     //TODO Definir y programar comportamiento de la creación de preguntas
 
@@ -33,9 +24,9 @@ export class ExamService {
       user: userId,
       subject: subjectId,
       course: courseId,
-      questions: questions.map((question, i) => [
-        { ...question },
-        answers[i].id,
+      questions: answers.map(({ question, id }) => [
+        { ...question, selected: '', time: 0 },
+        id,
       ]),
     });
 
@@ -68,7 +59,7 @@ export class ExamService {
         string,
       ];
       let isCorrect = options.filter((option) => option._id === selected)[0]
-        .isCorrect;
+        ?.isCorrect;
       if (typeof isCorrect !== 'boolean') isCorrect = false;
       await this.answerService.update(answerId, { isCorrect, time });
       isCorrect ? results.right_answers++ : results.wrong_answers++;

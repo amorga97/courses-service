@@ -98,7 +98,7 @@ export class AnswerService {
   }
 
   async findManyByCourseId(courseId: string) {
-    return (await this.Answer.find({ course: courseId })).map;
+    return await this.Answer.find({ course: courseId });
   }
 
   async findOne(id: string) {
