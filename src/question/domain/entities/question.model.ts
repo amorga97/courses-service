@@ -50,7 +50,7 @@ export const questionSchema = new Schema({
   });
 
 export interface iOption {
-  _id?: string;
+  id?: string;
   description: string;
   isCorrect: boolean;
 }

@@ -24,7 +24,7 @@ export class ExamController {
 
   @Post(':id')
   submit(@Param('id') id: string) {
-    this.examService.submit(id);
+    return this.examService.submit(id);
   }
 
   // TODO: DELETE

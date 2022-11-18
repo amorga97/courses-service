@@ -58,7 +58,7 @@ export class ExamService {
         questionForExam,
         string,
       ];
-      let isCorrect = options.filter((option) => option._id === selected)[0]
+      let isCorrect = options.filter((option) => option.id === selected)[0]
         ?.isCorrect;
       if (typeof isCorrect !== 'boolean') isCorrect = false;
       await this.answerService.update(answerId, { isCorrect, time });
@@ -66,6 +66,8 @@ export class ExamService {
       results.time += time;
     }
     await this.courseService.addExamResult(course, results);
-    return await this.Exam.findByIdAndUpdate(id, { results });
+    const updatedExam = await this.Exam.findByIdAndUpdate(id, { results });
+    console.log(updatedExam);
+    return updatedExam;
   }
 }

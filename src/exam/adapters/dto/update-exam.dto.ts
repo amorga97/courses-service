@@ -12,7 +12,6 @@ import { questionForExam } from 'src/exam/domain/entities/exam.model';
 export class UpdateExamDto {
   @IsOptional()
   @IsNotEmpty()
-  @ValidateNested({ each: true })
   questions: [QuestionDto, string][];
 }
 
